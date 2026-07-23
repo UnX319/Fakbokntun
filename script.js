@@ -1,11 +1,7 @@
 /**
- * FAKBOKNTUN - Warm Neutral Architecture
- * GSAP + Supabase + Failsafe Loaded
+ * FAKBOKNTUN - Warm Neutral Architecture (No Loader Version)
  */
 
-// ==========================================
-// 1. SECURITY & CONFIG 
-// ==========================================
 (function initSecurity() {
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('keydown', e => {
@@ -23,9 +19,6 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const ADMIN_EMAIL = 'aceaa372@gmail.com';
 let currentUser = null;
 
-// ==========================================
-// 2. UI UX & ANIMATIONS
-// ==========================================
 const textarea = document.getElementById('message-input');
 if(textarea) {
     textarea.addEventListener('input', function() {
@@ -39,13 +32,11 @@ function showToast(msg) {
     if(!toast) return;
     document.getElementById('toast-msg').textContent = msg;
     
-    // Fallback if GSAP fails
     if (typeof gsap !== 'undefined') {
         gsap.fromTo(toast, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "back.out(1.5)" });
         setTimeout(() => { gsap.to(toast, { y: 20, opacity: 0, duration: 0.4, ease: "power2.in" }); }, 3500);
     } else {
         toast.style.opacity = 1;
-        toast.style.transform = "translateY(0)";
         setTimeout(() => { toast.style.opacity = 0; }, 3500);
     }
 }
@@ -66,18 +57,10 @@ function switchView(viewId) {
                 { y: 30, opacity: 0 }, 
                 { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out", clearProps: "all" }
             );
-        } else {
-            view.querySelectorAll('.gs-reveal').forEach(el => {
-                el.style.opacity = 1;
-                el.style.transform = "translateY(0)";
-            });
         }
     }
 }
 
-// ==========================================
-// 3. AUTHENTICATION FLOW (Bulletproof)
-// ==========================================
 async function initAuth() {
     try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -85,17 +68,8 @@ async function initAuth() {
         handleSession(session);
     } catch (err) {
         console.error("Auth Error:", err);
-        showToast("Connection Interrupted");
         handleSession(null); 
     } finally {
-        // 🔥 จุดแก้ปัญหาหมุนค้าง: บังคับลบหน้าต่างโหลดดิ้งด้วย Vanilla JS ล้วนๆ ทันที
-        const loader = document.getElementById('app-loader');
-        if (loader) {
-            loader.style.transition = "opacity 0.8s ease";
-            loader.style.opacity = "0";
-            setTimeout(() => loader.remove(), 800);
-        }
-        
         const nav = document.querySelector('.nav-reveal');
         if (nav && typeof gsap !== 'undefined') {
             gsap.fromTo(nav, { y: -50, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 0.2 });
@@ -149,9 +123,6 @@ document.querySelectorAll('.btn-logout').forEach(btn => {
     });
 });
 
-// ==========================================
-// 4. CORE DATA LOGIC
-// ==========================================
 function escape(str) {
     const div = document.createElement('div');
     div.textContent = str;
@@ -260,5 +231,4 @@ window.adminAction = async function(id, action, text = null) {
     }
 };
 
-// Start App
 initAuth();
