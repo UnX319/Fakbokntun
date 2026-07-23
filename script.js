@@ -1,10 +1,10 @@
 /**
  * FAKBOKNTUN - Warm Neutral Architecture
- * GSAP + Supabase + React-style UI
+ * GSAP + Supabase + Failsafe Loaded
  */
 
 // ==========================================
-// 1. SECURITY & CONFIG (Anti-Inspect 100%)
+// 1. SECURITY & CONFIG 
 // ==========================================
 (function initSecurity() {
     document.addEventListener('contextmenu', e => e.preventDefault());
@@ -24,9 +24,8 @@ const ADMIN_EMAIL = 'aceaa372@gmail.com';
 let currentUser = null;
 
 // ==========================================
-// 2. UI UX & ANIMATIONS (GSAP)
+// 2. UI UX & ANIMATIONS
 // ==========================================
-// Auto-resize Textarea
 const textarea = document.getElementById('message-input');
 if(textarea) {
     textarea.addEventListener('input', function() {
@@ -35,16 +34,22 @@ if(textarea) {
     });
 }
 
-// Toast Feedback (Modern)
 function showToast(msg) {
     const toast = document.getElementById('toast');
     if(!toast) return;
     document.getElementById('toast-msg').textContent = msg;
-    gsap.fromTo(toast, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "back.out(1.5)" });
-    setTimeout(() => { gsap.to(toast, { y: 20, opacity: 0, duration: 0.4, ease: "power2.in" }); }, 3500);
+    
+    // Fallback if GSAP fails
+    if (typeof gsap !== 'undefined') {
+        gsap.fromTo(toast, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "back.out(1.5)" });
+        setTimeout(() => { gsap.to(toast, { y: 20, opacity: 0, duration: 0.4, ease: "power2.in" }); }, 3500);
+    } else {
+        toast.style.opacity = 1;
+        toast.style.transform = "translateY(0)";
+        setTimeout(() => { toast.style.opacity = 0; }, 3500);
+    }
 }
 
-// View Router with GSAP Transitions
 function switchView(viewId) {
     document.querySelectorAll('.view-section').forEach(v => {
         v.classList.remove('active');
@@ -56,16 +61,22 @@ function switchView(viewId) {
         view.classList.remove('hidden');
         view.classList.add('active');
         
-        // Stagger reveal animation for elements inside the view
-        gsap.fromTo(view.querySelectorAll('.gs-reveal'), 
-            { y: 30, opacity: 0 }, 
-            { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out", clearProps: "all" }
-        );
+        if (typeof gsap !== 'undefined') {
+            gsap.fromTo(view.querySelectorAll('.gs-reveal'), 
+                { y: 30, opacity: 0 }, 
+                { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out", clearProps: "all" }
+            );
+        } else {
+            view.querySelectorAll('.gs-reveal').forEach(el => {
+                el.style.opacity = 1;
+                el.style.transform = "translateY(0)";
+            });
+        }
     }
 }
 
 // ==========================================
-// 3. AUTHENTICATION FLOW
+// 3. AUTHENTICATION FLOW (Bulletproof)
 // ==========================================
 async function initAuth() {
     try {
@@ -77,13 +88,20 @@ async function initAuth() {
         showToast("Connection Interrupted");
         handleSession(null); 
     } finally {
-        // Fade out Loader elegantly
+        // 🔥 จุดแก้ปัญหาหมุนค้าง: บังคับลบหน้าต่างโหลดดิ้งด้วย Vanilla JS ล้วนๆ ทันที
         const loader = document.getElementById('app-loader');
         if (loader) {
-            gsap.to(loader, { opacity: 0, duration: 0.8, onComplete: () => loader.remove() });
+            loader.style.transition = "opacity 0.8s ease";
+            loader.style.opacity = "0";
+            setTimeout(() => loader.remove(), 800);
         }
-        // Slide down Navbar
-        gsap.fromTo('.nav-reveal', { y: -50, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 0.2 });
+        
+        const nav = document.querySelector('.nav-reveal');
+        if (nav && typeof gsap !== 'undefined') {
+            gsap.fromTo(nav, { y: -50, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 0.2 });
+        } else if (nav) {
+            nav.style.opacity = 1;
+        }
     }
 }
 
@@ -140,7 +158,6 @@ function escape(str) {
     return div.innerHTML;
 }
 
-// --- USER ACTIONS ---
 const btnSubmit = document.getElementById('btn-submit');
 if(btnSubmit) {
     btnSubmit.addEventListener('click', async (e) => {
@@ -184,7 +201,6 @@ async function fetchHistory() {
         return;
     }
 
-    // Grid Layout for Cards
     container.innerHTML = data.map((msg, index) => `
         <div class="history-card" style="animation: fadeUp 0.5s ease-out ${index * 0.1}s both;">
             <div class="flex justify-between items-center mb-4">
@@ -196,12 +212,10 @@ async function fetchHistory() {
     `).join('');
 }
 
-// Custom CSS animation for dynamic list insertion
 const style = document.createElement('style');
 style.innerHTML = `@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }`;
 document.head.appendChild(style);
 
-// --- ADMIN ACTIONS ---
 const btnRefresh = document.getElementById('btn-refresh');
 if(btnRefresh) btnRefresh.addEventListener('click', fetchPending);
 
@@ -246,4 +260,5 @@ window.adminAction = async function(id, action, text = null) {
     }
 };
 
+// Start App
 initAuth();
