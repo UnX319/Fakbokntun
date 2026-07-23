@@ -1,0 +1,77 @@
+/* ==========================================
+   WARM NEUTRAL DESIGN SYSTEM
+========================================== */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scrollbar-width: none; 
+}
+* { scrollbar-width: none; }
+::-webkit-scrollbar { display: none; }
+
+/* Custom CSS Loader */
+.loader-circle {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(74, 63, 53, 0.1); /* Warm-800 with low opacity */
+    border-radius: 50%;
+    border-top-color: #B45309; /* Amber-700 */
+    animation: spin 1s ease-in-out infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* CSS Banter Toggle (React-style Smooth Toggle) */
+input:checked ~ .toggle-track {
+    background-color: #B45309; /* Amber-700 */
+}
+input:checked ~ .toggle-dot {
+    transform: translateX(100%);
+    background-color: #FFF;
+}
+.toggle-track {
+    transition: background-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+.toggle-dot {
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Glass & Card Effects */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.5);
+}
+
+.history-card {
+    background: #FFFFFF;
+    border: 1px solid #F0EBE1;
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.02);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.history-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+    border-color: #E2D9C8;
+}
+
+/* Status Badges */
+.badge {
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+.badge.pending { background: #F3F4F6; color: #6B7280; }
+.badge.approved { background: #ECFDF5; color: #059669; }
+.badge.rejected { background: #FEF2F2; color: #DC2626; }
+
+/* View Control */
+.view-section { display: none; }
+.view-section.active { display: flex; }
