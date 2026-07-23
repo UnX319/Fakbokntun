@@ -1,40 +1,49 @@
 /**
- * FAKBOKNTUN - Stable Startup Architecture
+ * FAKBOKNTUN - Enterprise Dashboard Logic
  */
-
-// 1. CONFIG & SECURITY
-(function initSecurity() {
-    document.addEventListener('contextmenu', e => e.preventDefault());
-})();
 
 const SUPABASE_URL = 'https://uffczgkjrdqqactsjuiy.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmZmN6Z2tqcmRxcWFjdHNqdWl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2NjQ2NDEsImV4cCI6MjEwMDI0MDY0MX0.o8yrwmKb_6f_9ZTQp9QRuv5MSV_DGMnpUBHM4A7RbI8';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const ADMIN_EMAIL = 'aceaa372@gmail.com';
 let currentUser = null;
 
-// 2. UI HELPERS
+// ==========================================
+// UI HELPERS
+// ==========================================
 function showToast(msg) {
     const toast = document.getElementById('toast');
     document.getElementById('toast-msg').textContent = msg;
-    
     toast.style.opacity = '1';
-    toast.style.transform = 'translateY(0) translateX(-50%)';
+    toast.style.transform = 'translateY(0) translateX(-50%)'; // สำหรับมือถือ
     
+    // รีเซ็ต transform สำหรับ Desktop
+    if(window.innerWidth >= 768) {
+        toast.style.transform = 'translateY(0)';
+    }
+
     setTimeout(() => {
         toast.style.opacity = '0';
-        toast.style.transform = 'translateY(16px) translateX(-50%)';
+        if(window.innerWidth >= 768) {
+            toast.style.transform = 'translateY(16px)';
+        } else {
+            toast.style.transform = 'translateY(16px) translateX(-50%)';
+        }
     }, 3000);
 }
 
-// 💡 แก้ปัญหาจอดำ: สลับคลาสตรงๆ ไม่พึ่ง GSAP
-function switchView(viewId) {
+function escape(str) {
+    if(!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function switchMainView(viewId) {
     document.querySelectorAll('.view-section').forEach(v => {
         v.classList.remove('flex');
         v.classList.add('hidden');
     });
-    
     const view = document.getElementById(viewId);
     if(view) {
         view.classList.remove('hidden');
@@ -42,167 +51,142 @@ function switchView(viewId) {
     }
 }
 
-// 3. AUTHENTICATION
+window.switchTab = function(tabId) {
+    document.querySelectorAll('.content-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    
+    document.getElementById(tabId).classList.add('active');
+    event.currentTarget.classList.add('active');
+
+    if(tabId === 'tab-history') fetchHistory();
+}
+
+// ==========================================
+// AUTHENTICATION
+// ==========================================
 async function initAuth() {
-    try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) throw error;
-        handleSession(session);
-    } catch (err) {
-        handleSession(null); 
-    }
+    const { data: { session } } = await supabase.auth.getSession();
+    handleSession(session);
 }
 
 supabase.auth.onAuthStateChange((_e, session) => handleSession(session));
 
 function handleSession(session) {
-    const navActions = document.getElementById('nav-actions');
-
     if (!session) {
         currentUser = null;
-        navActions.innerHTML = `<button id="btn-login-nav" class="bg-brand-purple hover:bg-purple-700 text-white px-8 py-2.5 rounded-full font-medium transition-all shadow-lg shadow-purple-500/30">เข้าสู่ระบบ</button>`;
-        setupLoginButtons();
-        switchView('view-landing');
-        return;
+        switchMainView('view-login');
+    } else {
+        currentUser = session.user;
+        const emailDisplay = document.getElementById('user-email-display');
+        if(emailDisplay) emailDisplay.textContent = currentUser.email;
+        switchMainView('view-dashboard');
     }
-    
-    currentUser = session.user;
-    navActions.innerHTML = `<button id="btn-logout" class="bg-gray-100 hover:bg-gray-200 text-brand-dark px-6 py-2 rounded-full font-medium transition-all text-sm">ออกจากระบบ</button>`;
-    
-    document.getElementById('btn-logout').addEventListener('click', async () => {
+}
+
+document.getElementById('btn-login').addEventListener('click', async () => {
+    try {
+        await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + window.location.pathname } });
+    } catch (e) { showToast('เข้าสู่ระบบล้มเหลว'); }
+});
+
+const btnLogout = document.getElementById('btn-logout');
+if(btnLogout) {
+    btnLogout.addEventListener('click', async () => {
         await supabase.auth.signOut();
         window.location.reload();
     });
-
-    if (currentUser.email === ADMIN_EMAIL) {
-        switchView('view-admin');
-        fetchPending();
-    } else {
-        switchView('view-user');
-        fetchHistory();
-    }
 }
 
-function setupLoginButtons() {
-    const loginHandler = async () => {
-        try {
-            await supabase.auth.signInWithOAuth({ 
-                provider: 'google', 
-                options: { redirectTo: window.location.origin + window.location.pathname } 
-            });
-        } catch (e) { showToast('เข้าสู่ระบบล้มเหลว'); }
-    };
-
-    const btnNav = document.getElementById('btn-login-nav');
-    const btnHero = document.getElementById('btn-login-hero');
-    if(btnNav) btnNav.addEventListener('click', loginHandler);
-    if(btnHero) btnHero.addEventListener('click', loginHandler);
-}
-
-// 4. DATA LOGIC
-function escape(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-}
-
-const btnSubmit = document.getElementById('btn-submit');
+// ==========================================
+// SUBMIT POST
+// ==========================================
+const btnSubmit = document.getElementById('btn-submit-post');
 if(btnSubmit) {
     btnSubmit.addEventListener('click', async (e) => {
         const btn = e.currentTarget;
-        const textarea = document.getElementById('message-input');
-        const msg = textarea.value.trim();
-        const anonToggle = document.getElementById('anon-toggle');
-        const isAnon = anonToggle ? anonToggle.checked : true;
+        const msgText = document.getElementById('msg-text').value.trim();
+        const showProfile = document.getElementById('toggle-profile').checked;
+        const hasMusic = document.getElementById('toggle-music').checked;
+        const tags = document.getElementById('msg-tags').value.trim();
+        const files = document.getElementById('msg-files').files;
         
-        if (!msg) return showToast('กรุณาพิมพ์ข้อความก่อนส่ง');
+        if (!msgText) return showToast('กรุณาระบุรายละเอียดข้อความ');
         
         btn.disabled = true;
-        btn.textContent = 'กำลังส่ง...';
+        btn.textContent = 'กำลังประมวลผล...';
 
         try {
             await supabase.from('messages').insert([{ 
                 user_email: currentUser.email, 
-                message_text: msg, 
-                status: 'pending', 
-                is_anonymous: isAnon 
+                message_text: msgText, 
+                status: 'pending',
+                is_anonymous: !showProfile,
+                tags: tags,
+                has_music: hasMusic
             }]);
-            textarea.value = '';
-            showToast('ส่งข้อความสำเร็จแล้ว!');
-            fetchHistory();
+
+            document.getElementById('msg-text').value = '';
+            document.getElementById('msg-tags').value = '';
+            document.getElementById('msg-files').value = '';
+            showToast('บันทึกข้อมูลสำเร็จ');
+            
+            switchTab('tab-history');
         } catch (err) {
-            showToast('เกิดข้อผิดพลาด กรุณาลองใหม่');
+            console.error(err);
+            showToast('ข้อผิดพลาดทางเซิร์ฟเวอร์');
         } finally {
             btn.disabled = false;
-            btn.textContent = 'ส่งข้อความ';
+            btn.textContent = 'ยืนยันการส่งคำขอ';
         }
     });
 }
 
+// ==========================================
+// FETCH HISTORY
+// ==========================================
 async function fetchHistory() {
+    const container = document.getElementById('history-container');
+    container.innerHTML = '<p class="text-slate-400 text-sm col-span-full">กำลังโหลดข้อมูลจากเซิร์ฟเวอร์...</p>';
+
     const { data } = await supabase.from('messages').select('*').eq('user_email', currentUser.email).order('created_at', { ascending: false });
-    const container = document.getElementById('user-history');
-    if(!container) return;
     
     if (!data || data.length === 0) {
-        container.innerHTML = '<p class="text-gray-400 col-span-full py-8">ยังไม่มีประวัติการส่งข้อความ</p>';
+        container.innerHTML = '<p class="text-slate-400 text-sm col-span-full py-4">ไม่พบประวัติการทำรายการ</p>';
         return;
     }
 
-    container.innerHTML = data.map((msg) => `
-        <div class="message-card animate-fade-in-up">
-            <div class="flex justify-between items-center mb-3">
-                <span class="text-xs font-semibold text-gray-500">${msg.is_anonymous ? 'ไม่ระบุตัวตน' : escape(msg.user_email)}</span>
-                <span class="badge ${msg.status}">${msg.status}</span>
-            </div>
-            <p class="text-brand-dark leading-relaxed">${escape(msg.message_text)}</p>
-        </div>
-    `).join('');
-}
+    container.innerHTML = data.map((msg) => {
+        let statusText = 'PENDING';
+        let reasonHtml = '';
 
-const btnRefresh = document.getElementById('btn-refresh');
-if(btnRefresh) btnRefresh.addEventListener('click', fetchPending);
-
-async function fetchPending() {
-    const { data } = await supabase.from('messages').select('*').eq('status', 'pending').order('created_at', { ascending: true });
-    const container = document.getElementById('admin-pending');
-    if(!container) return;
-    
-    if (!data || data.length === 0) {
-        container.innerHTML = '<p class="text-gray-400 col-span-full py-8 text-center">ไม่มีข้อความรอตรวจสอบ</p>';
-        return;
-    }
-
-    container.innerHTML = data.map((msg) => `
-        <div class="message-card flex flex-col justify-between animate-fade-in-up">
-            <div>
-                <div class="text-xs font-bold text-brand-purple mb-2">ผู้ส่ง: ${msg.is_anonymous ? 'ปกปิด' : escape(msg.user_email)}</div>
-                <p class="text-brand-dark mb-6">${escape(msg.message_text)}</p>
-            </div>
-            <div class="flex gap-2 mt-auto pt-4 border-t border-gray-100">
-                <button onclick="adminAction('${msg.id}', 'rejected')" class="flex-1 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors">ไม่อนุมัติ</button>
-                <button onclick="adminAction('${msg.id}', 'approved', \`${escape(msg.message_text)}\`)" class="flex-1 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors">อนุมัติ</button>
-            </div>
-        </div>
-    `).join('');
-}
-
-window.adminAction = async function(id, action, text = null) {
-    try {
-        await supabase.from('messages').update({ status: action }).eq('id', id);
-        
-        if (action === 'approved' && text) {
-            await navigator.clipboard.writeText(`${text}\n\n#fakbokntun`);
-            showToast('อนุมัติและคัดลอกข้อความแล้ว');
-        } else {
-            showToast('ปฏิเสธข้อความแล้ว');
+        if(msg.status === 'approved') statusText = 'APPROVED';
+        if(msg.status === 'rejected') {
+            statusText = 'REJECTED';
+            if(msg.reject_reason) {
+                reasonHtml = `<div class="mt-4 p-3 bg-red-50 border border-red-100 text-red-700 text-xs rounded-lg"><strong>หมายเหตุ:</strong> ${escape(msg.reject_reason)}</div>`;
+            } else {
+                reasonHtml = `<div class="mt-4 p-3 bg-red-50 border border-red-100 text-red-700 text-xs rounded-lg"><strong>หมายเหตุ:</strong> ไม่ตรงตามเงื่อนไขการให้บริการ</div>`;
+            }
         }
-        
-        fetchPending();
-    } catch (e) {
-        showToast('ดำเนินการไม่สำเร็จ');
-    }
-};
 
-// Start App
+        return `
+        <div class="history-card animate-fade-in">
+            <div>
+                <div class="flex justify-between items-start mb-4 gap-2">
+                    <span class="badge ${msg.status}">${statusText}</span>
+                    <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider bg-slate-100 px-2 py-1 rounded">
+                        ${msg.is_anonymous ? 'ปกปิดตัวตน' : 'เปิดเผยตัวตน'} 
+                        ${msg.has_music ? ' • มีดนตรี' : ''}
+                    </span>
+                </div>
+                <p class="text-slate-700 text-sm leading-relaxed">${escape(msg.message_text)}</p>
+                ${msg.tags ? `<p class="text-xs text-brand-orange mt-3 font-medium bg-orange-50 inline-block px-2 py-1 rounded border border-orange-100">🔗 ${escape(msg.tags)}</p>` : ''}
+            </div>
+            ${reasonHtml}
+        </div>
+        `;
+    }).join('');
+}
+
+// Start
 initAuth();
