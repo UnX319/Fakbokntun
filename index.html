@@ -3,129 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FAKBOKNTUN — The Safe Space</title>
+    <title>FAKBOKNTUN — Safe Space</title>
     
+    <!-- Google Fonts: Kanit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=IBM+Plex+Sans+Thai:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: { sans: ['Kanit', 'sans-serif'] },
                     colors: {
-                        warm: {
-                            50: '#FAF8F5',
-                            100: '#F0EBE1',
-                            200: '#E2D9C8',
-                            800: '#4A3F35',
-                            900: '#2C241E'
+                        brand: {
+                            purple: '#9333EA',    // สีม่วงปุ่ม
+                            dark: '#1E1B4B',      // สีน้ำเงินเข้มตัวหนังสือ
+                            light: '#F3E8FF'      // สีม่วงอ่อน
                         }
-                    },
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', '"IBM Plex Sans Thai"', 'sans-serif'],
-                        serif: ['"Playfair Display"', 'serif']
                     }
                 }
             }
         }
     </script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-warm-50 text-warm-800 font-sans antialiased min-h-screen overflow-x-hidden selection:bg-warm-200 selection:text-warm-900">
+<body class="bg-white text-gray-800 font-sans min-h-screen overflow-x-hidden relative">
 
-    <!-- Navbar -->
-    <nav class="fixed top-0 left-0 right-0 z-50 p-4 md:p-6 pointer-events-none">
-        <div class="max-w-6xl mx-auto flex justify-between items-center bg-white/70 backdrop-blur-xl border border-warm-200/50 rounded-full px-6 py-3 shadow-[0_8px_30px_rgb(0,0,0,0.04)] pointer-events-auto nav-reveal">
-            <div class="font-serif font-semibold text-lg tracking-wide text-warm-900">
-                Fakbokntun<span class="text-amber-600">.</span>
-            </div>
-            
-            <div id="user-nav-info" class="hidden flex items-center gap-4">
-                <span id="nav-email" class="text-xs font-medium text-warm-800/70 hidden md:block"></span>
-                <button class="btn-logout text-xs font-semibold bg-warm-100 hover:bg-warm-200 text-warm-900 px-4 py-2 rounded-full transition-colors">Sign Out</button>
-            </div>
+    <!-- พื้นหลังลายตาราง (Grid) -->
+    <div class="fixed inset-0 z-[-2] bg-grid opacity-40 pointer-events-none"></div>
+
+    <!-- พื้นหลังคลื่นสีม่วง (Wave) -->
+    <div class="fixed bottom-0 left-0 right-0 z-[-1] pointer-events-none">
+        <svg viewBox="0 0 1440 320" class="w-full h-auto min-h-[30vh] object-cover" preserveAspectRatio="none">
+            <path fill="#9333EA" fill-opacity="0.1" d="M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,149.3C672,149,768,203,864,224C960,245,1056,235,1152,202.7C1248,171,1344,117,1392,90.7L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+            <path fill="#9333EA" fill-opacity="0.8" d="M0,224L48,229.3C96,235,192,245,288,224C384,203,480,149,576,138.7C672,128,768,160,864,181.3C960,203,1056,213,1152,197.3C1248,181,1344,139,1392,117.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+    </div>
+
+    <!-- Navbar สไตล์เรฟเฟอเรนซ์ -->
+    <nav class="w-full max-w-7xl mx-auto px-6 py-6 flex justify-between items-center relative z-50">
+        <div class="text-2xl font-bold text-brand-dark tracking-tight">Fakbokntun</div>
+        
+        <!-- เมนูตรงกลาง (ซ่อนในมือถือ) -->
+        <div class="hidden md:flex gap-8 text-brand-dark/70 font-medium">
+            <a href="#" class="hover:text-brand-purple transition-colors">หน้าหลัก</a>
+            <a href="#" class="hover:text-brand-purple transition-colors">บริการ</a>
+            <a href="#" class="hover:text-brand-purple transition-colors">เกี่ยวกับ</a>
+        </div>
+
+        <div id="nav-actions">
+            <!-- ปุ่มล็อกอิน จะถูกจัดการโดย JS -->
+            <button id="btn-login-nav" class="bg-brand-purple hover:bg-purple-700 text-white px-8 py-2.5 rounded-full font-medium transition-all shadow-lg shadow-purple-500/30">
+                เข้าสู่ระบบ
+            </button>
         </div>
     </nav>
 
-    <main class="relative z-10 w-full min-h-screen pt-32 pb-20 px-6 md:px-12 flex flex-col items-center">
+    <main class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-10 pb-24">
         
         <!-- VIEW: LANDING (หน้าแรก) -->
-        <section id="view-landing" class="view-section active w-full max-w-4xl flex-col items-center text-center mt-10 md:mt-20">
-            <span class="text-xs font-bold tracking-[0.2em] uppercase text-amber-700 mb-6 gs-reveal">A Safe Haven</span>
-            <h1 class="text-5xl md:text-7xl font-serif text-warm-900 leading-tight mb-8 gs-reveal">
-                Unspoken words, <br> <span class="italic text-warm-800/80">beautifully</span> delivered.
-            </h1>
-            <p class="text-sm md:text-base text-warm-800/60 max-w-lg mb-12 font-light leading-relaxed gs-reveal">
-                พื้นที่ปลอดภัยสำหรับส่งต่อความรู้สึกที่ซ่อนไว้ <br class="hidden md:block">
-                ทุกข้อความจะถูกดูแลอย่างดีในโทนสีที่อบอุ่นที่สุด
-            </p>
-            
-            <button id="btn-login" class="gs-reveal bg-warm-900 text-warm-50 hover:bg-warm-800 hover:scale-105 transition-all duration-300 py-4 px-10 rounded-full flex items-center gap-3 shadow-xl shadow-warm-900/20">
-                <span class="text-sm font-semibold tracking-wider">Continue with Google</span>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-            </button>
+        <section id="view-landing" class="view-section flex flex-col md:flex-row items-center justify-between gap-12 mt-10">
+            <div class="flex-1 text-left animate-fade-in-up">
+                <h1 class="text-5xl md:text-7xl font-bold text-brand-dark leading-[1.1] mb-6 tracking-tight">
+                    พลังจาก<br>คำแนะนำชั้นเยี่ยม
+                </h1>
+                <p class="text-lg text-gray-600 mb-8 max-w-lg">
+                    พื้นที่ปลอดภัยสำหรับส่งต่อความรู้สึกที่ซ่อนไว้ คลิกที่นี่เพื่อเพิ่มข้อความของคุณและส่งต่อให้ถึงคนๆ นั้น
+                </p>
+                <button id="btn-login-hero" class="bg-brand-purple hover:bg-purple-700 text-white px-10 py-4 rounded-full font-medium text-lg transition-all shadow-xl shadow-purple-500/30 hover:-translate-y-1">
+                    เริ่มต้นใช้งาน
+                </button>
+            </div>
+            <div class="flex-1 hidden md:block">
+                <!-- เว้นที่ว่างไว้ให้คลื่นโชว์สวยๆ -->
+            </div>
         </section>
 
-        <!-- VIEW: USER PORTAL -->
-        <section id="view-user" class="view-section hidden w-full max-w-4xl flex-col gap-16 mt-8">
-            <div class="w-full bg-white rounded-[2rem] p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-warm-100 gs-reveal">
-                <h2 class="text-2xl font-serif text-warm-900 mb-6">Write your truth.</h2>
-                <textarea id="message-input" rows="1" class="w-full bg-transparent p-0 text-xl md:text-2xl text-warm-900 resize-none focus:outline-none placeholder:text-warm-200 min-h-[100px] font-light leading-relaxed" placeholder="มีความในใจอะไร อยากบอกใคร..."></textarea>
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mt-8 pt-8 border-t border-warm-100">
-                    <div class="flex items-center gap-4">
-                        <label class="toggle-container flex items-center cursor-pointer gap-3 group">
-                            <div class="relative">
-                                <input type="checkbox" id="anon-toggle" class="sr-only" checked>
-                                <div class="toggle-track block bg-warm-200 w-12 h-6 rounded-full transition-colors"></div>
-                                <div class="toggle-dot dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
-                            </div>
-                            <span class="text-xs font-semibold tracking-wider uppercase text-warm-800/50 group-hover:text-warm-800 transition-colors">Anonymous</span>
-                        </label>
-                    </div>
-                    <button id="btn-submit" class="w-full md:w-auto bg-amber-700 text-white py-3.5 px-10 rounded-full hover:bg-amber-800 hover:shadow-lg hover:shadow-amber-900/20 transition-all duration-300 text-xs font-semibold tracking-widest uppercase disabled:opacity-50">
-                        Release Message
+        <!-- VIEW: USER PORTAL (หน้าส่งข้อความ) -->
+        <section id="view-user" class="view-section hidden flex-col gap-10 mt-10 animate-fade-in-up">
+            <div class="w-full max-w-3xl mx-auto bg-white/90 backdrop-blur-md rounded-3xl p-8 shadow-2xl shadow-brand-purple/10 border border-purple-100">
+                <h2 class="text-2xl font-bold text-brand-dark mb-4">ส่งข้อความของคุณ</h2>
+                <textarea id="message-input" rows="3" class="w-full bg-gray-50 border border-gray-200 rounded-2xl p-6 text-xl text-brand-dark resize-none focus:outline-none focus:border-brand-purple focus:ring-2 focus:ring-purple-100 transition-all" placeholder="พิมพ์ความในใจของคุณที่นี่..."></textarea>
+                
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6 mt-6">
+                    <label class="flex items-center cursor-pointer gap-3">
+                        <div class="relative">
+                            <input type="checkbox" id="anon-toggle" class="sr-only" checked>
+                            <div class="toggle-track block bg-gray-300 w-12 h-6 rounded-full transition-colors"></div>
+                            <div class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
+                        </div>
+                        <span class="text-sm font-medium text-gray-600">ส่งแบบไม่ระบุตัวตน</span>
+                    </label>
+                    <button id="btn-submit" class="w-full md:w-auto bg-brand-dark hover:bg-black text-white px-10 py-3 rounded-full font-medium transition-all shadow-lg">
+                        ส่งข้อความ
                     </button>
                 </div>
             </div>
-            <div class="w-full gs-reveal">
-                <div class="flex justify-between items-end mb-8 border-b border-warm-200 pb-4">
-                    <h3 class="text-sm font-semibold uppercase tracking-widest text-warm-900">Your Journey</h3>
-                    <span class="text-xs text-warm-800/50">Recent</span>
-                </div>
-                <div id="user-history" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+
+            <div class="w-full max-w-5xl mx-auto mt-8">
+                <h3 class="text-xl font-bold text-brand-dark mb-6 border-b border-gray-200 pb-2">ประวัติการส่งของคุณ</h3>
+                <div id="user-history" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
         </section>
 
-        <!-- VIEW: ADMIN DASHBOARD -->
-        <section id="view-admin" class="view-section hidden w-full max-w-5xl flex-col gap-12 mt-8">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 gs-reveal">
-                <div>
-                    <h2 class="text-3xl font-serif text-warm-900 mb-2">Curator Board</h2>
-                    <p class="text-sm text-warm-800/60 font-medium">Managing submissions</p>
-                </div>
-                <button id="btn-refresh" class="text-xs bg-white border border-warm-200 px-5 py-2.5 rounded-full hover:bg-warm-100 transition-colors font-semibold tracking-wide shadow-sm">Sync Entries</button>
+        <!-- VIEW: ADMIN DASHBOARD (หน้าแอดมิน) -->
+        <section id="view-admin" class="view-section hidden flex-col gap-8 mt-10 animate-fade-in-up">
+            <div class="flex justify-between items-center bg-white/90 p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h2 class="text-2xl font-bold text-brand-dark">ระบบจัดการข้อความ</h2>
+                <button id="btn-refresh" class="text-sm bg-gray-100 px-6 py-2 rounded-full hover:bg-gray-200 transition-colors font-medium">รีเฟรชข้อมูล</button>
             </div>
-            <div id="admin-pending" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 gs-reveal"></div>
+            <div id="admin-pending" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
 
     </main>
 
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none opacity-0 flex items-center justify-center">
-        <div class="bg-warm-900 text-white px-8 py-4 rounded-2xl text-xs tracking-wider font-semibold shadow-2xl flex items-center gap-3">
-            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-            <span id="toast-msg"></span>
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none opacity-0 transition-all duration-300 transform translate-y-4">
+        <div class="bg-brand-dark text-white px-8 py-4 rounded-full text-sm font-medium shadow-2xl flex items-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-brand-purple animate-pulse"></span>
+            <span id="toast-msg">แจ้งเตือน</span>
         </div>
     </div>
-
-    <footer class="w-full border-t border-warm-200/60 py-8 text-center text-xs font-medium tracking-wide text-warm-800/40">
-        © 2026 Fakbokntun. Crafted with warmth.
-    </footer>
 
     <script src="script.js"></script>
 </body>
