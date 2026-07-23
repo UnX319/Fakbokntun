@@ -1,15 +1,10 @@
 /**
- * FAKBOKNTUN - Warm Neutral Architecture (No Loader Version)
+ * FAKBOKNTUN - Stable Startup Architecture
  */
 
+// 1. CONFIG & SECURITY
 (function initSecurity() {
     document.addEventListener('contextmenu', e => e.preventDefault());
-    document.addEventListener('keydown', e => {
-        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) || (e.ctrlKey && e.key === 'U')) {
-            e.preventDefault();
-            return false;
-        }
-    });
 })();
 
 const SUPABASE_URL = 'https://uffczgkjrdqqactsjuiy.supabase.co';
@@ -19,84 +14,65 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const ADMIN_EMAIL = 'aceaa372@gmail.com';
 let currentUser = null;
 
-const textarea = document.getElementById('message-input');
-if(textarea) {
-    textarea.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = (this.scrollHeight) + 'px';
-    });
-}
-
+// 2. UI HELPERS
 function showToast(msg) {
     const toast = document.getElementById('toast');
-    if(!toast) return;
     document.getElementById('toast-msg').textContent = msg;
     
-    if (typeof gsap !== 'undefined') {
-        gsap.fromTo(toast, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "back.out(1.5)" });
-        setTimeout(() => { gsap.to(toast, { y: 20, opacity: 0, duration: 0.4, ease: "power2.in" }); }, 3500);
-    } else {
-        toast.style.opacity = 1;
-        setTimeout(() => { toast.style.opacity = 0; }, 3500);
-    }
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0) translateX(-50%)';
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(16px) translateX(-50%)';
+    }, 3000);
 }
 
+// 💡 แก้ปัญหาจอดำ: สลับคลาสตรงๆ ไม่พึ่ง GSAP
 function switchView(viewId) {
     document.querySelectorAll('.view-section').forEach(v => {
-        v.classList.remove('active');
+        v.classList.remove('flex');
         v.classList.add('hidden');
     });
     
     const view = document.getElementById(viewId);
     if(view) {
         view.classList.remove('hidden');
-        view.classList.add('active');
-        
-        if (typeof gsap !== 'undefined') {
-            gsap.fromTo(view.querySelectorAll('.gs-reveal'), 
-                { y: 30, opacity: 0 }, 
-                { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out", clearProps: "all" }
-            );
-        }
+        view.classList.add('flex');
     }
 }
 
+// 3. AUTHENTICATION
 async function initAuth() {
     try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) throw error;
         handleSession(session);
     } catch (err) {
-        console.error("Auth Error:", err);
         handleSession(null); 
-    } finally {
-        const nav = document.querySelector('.nav-reveal');
-        if (nav && typeof gsap !== 'undefined') {
-            gsap.fromTo(nav, { y: -50, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 0.2 });
-        } else if (nav) {
-            nav.style.opacity = 1;
-        }
     }
 }
 
 supabase.auth.onAuthStateChange((_e, session) => handleSession(session));
 
 function handleSession(session) {
-    const navInfo = document.getElementById('user-nav-info');
-    const navEmail = document.getElementById('nav-email');
+    const navActions = document.getElementById('nav-actions');
 
     if (!session) {
         currentUser = null;
-        if(navInfo) navInfo.classList.add('hidden');
+        navActions.innerHTML = `<button id="btn-login-nav" class="bg-brand-purple hover:bg-purple-700 text-white px-8 py-2.5 rounded-full font-medium transition-all shadow-lg shadow-purple-500/30">เข้าสู่ระบบ</button>`;
+        setupLoginButtons();
         switchView('view-landing');
         return;
     }
     
     currentUser = session.user;
-    if(navInfo) {
-        navInfo.classList.remove('hidden');
-        navEmail.textContent = currentUser.email;
-    }
+    navActions.innerHTML = `<button id="btn-logout" class="bg-gray-100 hover:bg-gray-200 text-brand-dark px-6 py-2 rounded-full font-medium transition-all text-sm">ออกจากระบบ</button>`;
+    
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        window.location.reload();
+    });
 
     if (currentUser.email === ADMIN_EMAIL) {
         switchView('view-admin');
@@ -107,22 +83,23 @@ function handleSession(session) {
     }
 }
 
-const btnLogin = document.getElementById('btn-login');
-if(btnLogin) {
-    btnLogin.addEventListener('click', async () => {
+function setupLoginButtons() {
+    const loginHandler = async () => {
         try {
-            await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + window.location.pathname } });
-        } catch (e) { showToast('Authentication Failed'); }
-    });
+            await supabase.auth.signInWithOAuth({ 
+                provider: 'google', 
+                options: { redirectTo: window.location.origin + window.location.pathname } 
+            });
+        } catch (e) { showToast('เข้าสู่ระบบล้มเหลว'); }
+    };
+
+    const btnNav = document.getElementById('btn-login-nav');
+    const btnHero = document.getElementById('btn-login-hero');
+    if(btnNav) btnNav.addEventListener('click', loginHandler);
+    if(btnHero) btnHero.addEventListener('click', loginHandler);
 }
 
-document.querySelectorAll('.btn-logout').forEach(btn => {
-    btn.addEventListener('click', async () => {
-        await supabase.auth.signOut();
-        window.location.reload();
-    });
-});
-
+// 4. DATA LOGIC
 function escape(str) {
     const div = document.createElement('div');
     div.textContent = str;
@@ -133,14 +110,15 @@ const btnSubmit = document.getElementById('btn-submit');
 if(btnSubmit) {
     btnSubmit.addEventListener('click', async (e) => {
         const btn = e.currentTarget;
+        const textarea = document.getElementById('message-input');
         const msg = textarea.value.trim();
         const anonToggle = document.getElementById('anon-toggle');
         const isAnon = anonToggle ? anonToggle.checked : true;
         
-        if (!msg) return showToast('Please enter your message.');
+        if (!msg) return showToast('กรุณาพิมพ์ข้อความก่อนส่ง');
         
         btn.disabled = true;
-        btn.innerHTML = '<span class="opacity-70">Processing...</span>';
+        btn.textContent = 'กำลังส่ง...';
 
         try {
             await supabase.from('messages').insert([{ 
@@ -150,14 +128,13 @@ if(btnSubmit) {
                 is_anonymous: isAnon 
             }]);
             textarea.value = '';
-            textarea.style.height = 'auto';
-            showToast('Your message has been safely delivered.');
+            showToast('ส่งข้อความสำเร็จแล้ว!');
             fetchHistory();
         } catch (err) {
-            showToast('System Error. Try again.');
+            showToast('เกิดข้อผิดพลาด กรุณาลองใหม่');
         } finally {
             btn.disabled = false;
-            btn.textContent = 'Release Message';
+            btn.textContent = 'ส่งข้อความ';
         }
     });
 }
@@ -168,24 +145,20 @@ async function fetchHistory() {
     if(!container) return;
     
     if (!data || data.length === 0) {
-        container.innerHTML = '<p class="text-sm text-warm-800/50 col-span-full py-10 text-center">Your journey starts here. No messages yet.</p>';
+        container.innerHTML = '<p class="text-gray-400 col-span-full py-8">ยังไม่มีประวัติการส่งข้อความ</p>';
         return;
     }
 
-    container.innerHTML = data.map((msg, index) => `
-        <div class="history-card" style="animation: fadeUp 0.5s ease-out ${index * 0.1}s both;">
-            <div class="flex justify-between items-center mb-4">
-                <span class="text-xs font-semibold text-warm-800/60 uppercase tracking-wider">${msg.is_anonymous ? 'Anonymous' : escape(msg.user_email)}</span>
+    container.innerHTML = data.map((msg) => `
+        <div class="message-card animate-fade-in-up">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-xs font-semibold text-gray-500">${msg.is_anonymous ? 'ไม่ระบุตัวตน' : escape(msg.user_email)}</span>
                 <span class="badge ${msg.status}">${msg.status}</span>
             </div>
-            <p class="text-base text-warm-900 font-light leading-relaxed">${escape(msg.message_text)}</p>
+            <p class="text-brand-dark leading-relaxed">${escape(msg.message_text)}</p>
         </div>
     `).join('');
 }
-
-const style = document.createElement('style');
-style.innerHTML = `@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }`;
-document.head.appendChild(style);
 
 const btnRefresh = document.getElementById('btn-refresh');
 if(btnRefresh) btnRefresh.addEventListener('click', fetchPending);
@@ -196,19 +169,19 @@ async function fetchPending() {
     if(!container) return;
     
     if (!data || data.length === 0) {
-        container.innerHTML = '<p class="text-sm text-warm-800/50 col-span-full py-10 text-center">Inbox is empty. All caught up.</p>';
+        container.innerHTML = '<p class="text-gray-400 col-span-full py-8 text-center">ไม่มีข้อความรอตรวจสอบ</p>';
         return;
     }
 
-    container.innerHTML = data.map((msg, index) => `
-        <div class="history-card flex flex-col justify-between" style="animation: fadeUp 0.5s ease-out ${index * 0.1}s both;">
+    container.innerHTML = data.map((msg) => `
+        <div class="message-card flex flex-col justify-between animate-fade-in-up">
             <div>
-                <div class="text-[10px] font-bold tracking-[0.2em] text-warm-800/40 uppercase mb-3">Sender: ${msg.is_anonymous ? 'HIDDEN' : escape(msg.user_email)}</div>
-                <p class="text-base text-warm-900 font-light leading-relaxed mb-6">${escape(msg.message_text)}</p>
+                <div class="text-xs font-bold text-brand-purple mb-2">ผู้ส่ง: ${msg.is_anonymous ? 'ปกปิด' : escape(msg.user_email)}</div>
+                <p class="text-brand-dark mb-6">${escape(msg.message_text)}</p>
             </div>
-            <div class="flex gap-3 mt-auto pt-4 border-t border-warm-100">
-                <button onclick="adminAction('${msg.id}', 'rejected')" class="flex-1 py-2 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors">Reject</button>
-                <button onclick="adminAction('${msg.id}', 'approved', \`${escape(msg.message_text)}\`)" class="flex-1 py-2 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors">Approve</button>
+            <div class="flex gap-2 mt-auto pt-4 border-t border-gray-100">
+                <button onclick="adminAction('${msg.id}', 'rejected')" class="flex-1 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors">ไม่อนุมัติ</button>
+                <button onclick="adminAction('${msg.id}', 'approved', \`${escape(msg.message_text)}\`)" class="flex-1 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors">อนุมัติ</button>
             </div>
         </div>
     `).join('');
@@ -219,16 +192,17 @@ window.adminAction = async function(id, action, text = null) {
         await supabase.from('messages').update({ status: action }).eq('id', id);
         
         if (action === 'approved' && text) {
-            await navigator.clipboard.writeText(`${text}\n\n#fakbokntun #ฝากบอกนตอน #ntun`);
-            showToast('Approved & Copied successfully');
+            await navigator.clipboard.writeText(`${text}\n\n#fakbokntun`);
+            showToast('อนุมัติและคัดลอกข้อความแล้ว');
         } else {
-            showToast('Entry rejected');
+            showToast('ปฏิเสธข้อความแล้ว');
         }
         
         fetchPending();
     } catch (e) {
-        showToast('Action Failed');
+        showToast('ดำเนินการไม่สำเร็จ');
     }
 };
 
+// Start App
 initAuth();
