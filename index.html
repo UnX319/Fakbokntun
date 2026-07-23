@@ -3,13 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FAKBOKNTUN — Safe Space</title>
+    <title>FAKBOKNTUN — Portal</title>
     
-    <!-- Google Fonts: Kanit -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -18,9 +14,10 @@
                     fontFamily: { sans: ['Kanit', 'sans-serif'] },
                     colors: {
                         brand: {
-                            purple: '#9333EA',    // สีม่วงปุ่ม
-                            dark: '#1E1B4B',      // สีน้ำเงินเข้มตัวหนังสือ
-                            light: '#F3E8FF'      // สีม่วงอ่อน
+                            orange: '#E85D22', 
+                            dark: '#1E293B', // เปลี่ยนเป็นสีกรมท่าเข้ม ดูเป็นทางการ
+                            gray: '#F8FAFC',
+                            border: '#E2E8F0'
                         }
                     }
                 }
@@ -30,101 +27,190 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-white text-gray-800 font-sans min-h-screen overflow-x-hidden relative">
+<body class="bg-slate-50 text-slate-800 font-sans h-screen w-screen overflow-hidden selection:bg-brand-orange selection:text-white">
 
-    <!-- พื้นหลังลายตาราง (Grid) -->
-    <div class="fixed inset-0 z-[-2] bg-grid opacity-40 pointer-events-none"></div>
-
-    <!-- พื้นหลังคลื่นสีม่วง (Wave) -->
-    <div class="fixed bottom-0 left-0 right-0 z-[-1] pointer-events-none">
-        <svg viewBox="0 0 1440 320" class="w-full h-auto min-h-[30vh] object-cover" preserveAspectRatio="none">
-            <path fill="#9333EA" fill-opacity="0.1" d="M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,149.3C672,149,768,203,864,224C960,245,1056,235,1152,202.7C1248,171,1344,117,1392,90.7L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-            <path fill="#9333EA" fill-opacity="0.8" d="M0,224L48,229.3C96,235,192,245,288,224C384,203,480,149,576,138.7C672,128,768,160,864,181.3C960,203,1056,213,1152,197.3C1248,181,1344,139,1392,117.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-        </svg>
-    </div>
-
-    <!-- Navbar สไตล์เรฟเฟอเรนซ์ -->
-    <nav class="w-full max-w-7xl mx-auto px-6 py-6 flex justify-between items-center relative z-50">
-        <div class="text-2xl font-bold text-brand-dark tracking-tight">Fakbokntun</div>
-        
-        <!-- เมนูตรงกลาง (ซ่อนในมือถือ) -->
-        <div class="hidden md:flex gap-8 text-brand-dark/70 font-medium">
-            <a href="#" class="hover:text-brand-purple transition-colors">หน้าหลัก</a>
-            <a href="#" class="hover:text-brand-purple transition-colors">บริการ</a>
-            <a href="#" class="hover:text-brand-purple transition-colors">เกี่ยวกับ</a>
-        </div>
-
-        <div id="nav-actions">
-            <!-- ปุ่มล็อกอิน จะถูกจัดการโดย JS -->
-            <button id="btn-login-nav" class="bg-brand-purple hover:bg-purple-700 text-white px-8 py-2.5 rounded-full font-medium transition-all shadow-lg shadow-purple-500/30">
-                เข้าสู่ระบบ
-            </button>
-        </div>
-    </nav>
-
-    <main class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-10 pb-24">
-        
-        <!-- VIEW: LANDING (หน้าแรก) -->
-        <section id="view-landing" class="view-section flex flex-col md:flex-row items-center justify-between gap-12 mt-10">
-            <div class="flex-1 text-left animate-fade-in-up">
-                <h1 class="text-5xl md:text-7xl font-bold text-brand-dark leading-[1.1] mb-6 tracking-tight">
-                    พลังจาก<br>คำแนะนำชั้นเยี่ยม
-                </h1>
-                <p class="text-lg text-gray-600 mb-8 max-w-lg">
-                    พื้นที่ปลอดภัยสำหรับส่งต่อความรู้สึกที่ซ่อนไว้ คลิกที่นี่เพื่อเพิ่มข้อความของคุณและส่งต่อให้ถึงคนๆ นั้น
-                </p>
-                <button id="btn-login-hero" class="bg-brand-purple hover:bg-purple-700 text-white px-10 py-4 rounded-full font-medium text-lg transition-all shadow-xl shadow-purple-500/30 hover:-translate-y-1">
-                    เริ่มต้นใช้งาน
-                </button>
+    <!-- ==========================================
+         VIEW 1: LOGIN PAGE 
+         (แนวนอนแบ่งครึ่ง / แนวตั้งรูปอยู่บนหรือซ่อน)
+    =========================================== -->
+    <section id="view-login" class="view-section flex flex-col lg:flex-row h-full w-full bg-white z-50 absolute inset-0">
+        <!-- ฝั่งซ้าย: รูปภาพ (ซ่อนในมือถือ/iPad แนวตั้ง เพื่อความสะอาดตา) -->
+        <div class="hidden lg:flex w-1/2 h-full bg-slate-900 relative">
+            <img src="photo/login-bg.jpg" alt="Login Cover" class="w-full h-full object-cover opacity-60 mix-blend-overlay">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
+            <div class="absolute bottom-16 left-16 text-white max-w-lg">
+                <img src="photo/logo.png" alt="Logo" class="h-12 w-auto mb-6">
+                <h1 class="text-4xl font-bold mb-3 tracking-wide">FAKBOKNTUN PORTAL</h1>
+                <p class="text-lg text-slate-300 font-light">ระบบจัดการและรับส่งข้อความอย่างเป็นทางการ พื้นที่ปลอดภัยสำหรับความรู้สึกของคุณ</p>
             </div>
-            <div class="flex-1 hidden md:block">
-                <!-- เว้นที่ว่างไว้ให้คลื่นโชว์สวยๆ -->
-            </div>
-        </section>
-
-        <!-- VIEW: USER PORTAL (หน้าส่งข้อความ) -->
-        <section id="view-user" class="view-section hidden flex-col gap-10 mt-10 animate-fade-in-up">
-            <div class="w-full max-w-3xl mx-auto bg-white/90 backdrop-blur-md rounded-3xl p-8 shadow-2xl shadow-brand-purple/10 border border-purple-100">
-                <h2 class="text-2xl font-bold text-brand-dark mb-4">ส่งข้อความของคุณ</h2>
-                <textarea id="message-input" rows="3" class="w-full bg-gray-50 border border-gray-200 rounded-2xl p-6 text-xl text-brand-dark resize-none focus:outline-none focus:border-brand-purple focus:ring-2 focus:ring-purple-100 transition-all" placeholder="พิมพ์ความในใจของคุณที่นี่..."></textarea>
+        </div>
+        
+        <!-- ฝั่งขวา: ฟอร์มล็อกอิน (จัดกลางเสมอ) -->
+        <div class="w-full lg:w-1/2 h-full flex flex-col justify-center items-center p-8 bg-white">
+            <div class="w-full max-w-sm flex flex-col text-center lg:text-left">
+                <!-- โลโก้โชว์เฉพาะหน้าจอเล็ก -->
+                <img src="photo/logo.png" alt="Logo" class="h-12 w-auto mb-8 mx-auto lg:hidden bg-brand-dark rounded-lg p-2">
                 
-                <div class="flex flex-col md:flex-row justify-between items-center gap-6 mt-6">
-                    <label class="flex items-center cursor-pointer gap-3">
-                        <div class="relative">
-                            <input type="checkbox" id="anon-toggle" class="sr-only" checked>
-                            <div class="toggle-track block bg-gray-300 w-12 h-6 rounded-full transition-colors"></div>
-                            <div class="toggle-dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
-                        </div>
-                        <span class="text-sm font-medium text-gray-600">ส่งแบบไม่ระบุตัวตน</span>
-                    </label>
-                    <button id="btn-submit" class="w-full md:w-auto bg-brand-dark hover:bg-black text-white px-10 py-3 rounded-full font-medium transition-all shadow-lg">
-                        ส่งข้อความ
+                <h2 class="text-3xl font-bold text-brand-dark mb-2">เข้าสู่ระบบ</h2>
+                <p class="text-slate-500 mb-10 text-sm">กรุณายืนยันตัวตนผ่านบัญชี Google เพื่อเข้าใช้งานระบบ</p>
+                
+                <button id="btn-login" class="w-full bg-brand-dark hover:bg-slate-800 text-white py-3.5 px-6 rounded-xl font-medium transition-all shadow-md flex justify-center items-center gap-3 border border-slate-700">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"/></svg>
+                    ดำเนินการต่อด้วย Google
+                </button>
+                
+                <div class="mt-8 pt-6 border-t border-slate-100 text-xs text-slate-400 text-center">
+                    ระบบได้รับการคุ้มครองความปลอดภัยตามมาตรฐาน<br>© 2026 Fakbokntun. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 2: DASHBOARD (จัด Layout แบบแอป iPad)
+    =========================================== -->
+    <section id="view-dashboard" class="view-section hidden flex-col md:flex-row h-full w-full">
+        
+        <!-- SIDEBAR (ซ้ายมือ) -->
+        <aside class="w-full md:w-64 lg:w-72 h-auto md:h-full bg-white border-r border-brand-border flex flex-col z-20 shrink-0">
+            <div class="p-6 flex items-center gap-4">
+                <div class="bg-brand-dark p-2 rounded-lg">
+                    <img src="photo/logo.png" alt="Logo" class="h-8 w-auto">
+                </div>
+                <div class="font-bold text-brand-dark tracking-wide">PORTAL</div>
+            </div>
+
+            <!-- เมนูนำทาง -->
+            <nav class="flex-1 px-4 flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
+                <button onclick="switchTab('tab-home')" class="nav-btn active flex items-center gap-3 w-full px-4 py-3 rounded-xl text-left transition-all text-sm font-medium whitespace-nowrap">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    ภาพรวม (Overview)
+                </button>
+                <button onclick="switchTab('tab-submit')" class="nav-btn flex items-center gap-3 w-full px-4 py-3 rounded-xl text-left transition-all text-sm font-medium whitespace-nowrap">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    ส่งคำขอฝากบอก
+                </button>
+                <button onclick="switchTab('tab-history')" class="nav-btn flex items-center gap-3 w-full px-4 py-3 rounded-xl text-left transition-all text-sm font-medium whitespace-nowrap">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    ประวัติคำขอ
+                </button>
+            </nav>
+
+            <!-- ส่วนผู้ใช้งาน (ซ่อนในมือถือ แต่โชว์ใน iPad/Desktop) -->
+            <div class="hidden md:block p-4 mt-auto border-t border-brand-border bg-slate-50/50">
+                <div class="text-xs font-semibold text-slate-500 mb-1 truncate" id="user-email-display">user@email.com</div>
+                <div class="flex gap-2 mt-3">
+                    <button id="btn-logout" class="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-slate-100 text-slate-700 py-2 border border-slate-200 rounded-lg text-xs font-medium transition-colors shadow-sm">
+                        ออกจากระบบ
+                    </button>
+                    <button class="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50">
+                        🇹🇭
                     </button>
                 </div>
             </div>
+        </aside>
 
-            <div class="w-full max-w-5xl mx-auto mt-8">
-                <h3 class="text-xl font-bold text-brand-dark mb-6 border-b border-gray-200 pb-2">ประวัติการส่งของคุณ</h3>
-                <div id="user-history" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <!-- MAIN CONTENT AREA (พื้นที่แสดงผล) -->
+        <main class="flex-1 h-full overflow-y-auto bg-slate-50 p-6 md:p-10 relative">
+            
+            <div class="max-w-4xl mx-auto"> <!-- กล่องคุมความกว้าง ไม่ให้ยืดเกินไป -->
+                
+                <!-- Tab 1: ภาพรวม -->
+                <div id="tab-home" class="content-tab active animate-fade-in">
+                    <header class="mb-8">
+                        <h2 class="text-2xl md:text-3xl font-bold text-brand-dark mb-1">ยินดีต้อนรับสู่ระบบ</h2>
+                        <p class="text-slate-500 text-sm">คู่มือการใช้งานและการตั้งค่าเบื้องต้น</p>
+                    </header>
+                    <div class="bg-white rounded-2xl p-2 shadow-sm border border-brand-border overflow-hidden">
+                        <img src="photo/tutorial.jpg" alt="Tutorial" class="w-full h-auto rounded-xl bg-slate-100 object-cover">
+                    </div>
+                </div>
+
+                <!-- Tab 2: ฝากบอก (ปรับเป็น Grid ไม่ให้ยืด) -->
+                <div id="tab-submit" class="content-tab hidden animate-fade-in">
+                    <header class="mb-8">
+                        <h2 class="text-2xl md:text-3xl font-bold text-brand-dark mb-1">แบบฟอร์มฝากบอก</h2>
+                        <p class="text-slate-500 text-sm">โปรดกรอกข้อมูลให้ครบถ้วนเพื่อส่งเข้าสู่ระบบพิจารณา</p>
+                    </header>
+                    
+                    <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-brand-border flex flex-col gap-6">
+                        
+                        <!-- แถวที่ 1: ข้อความเต็มความกว้าง -->
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">รายละเอียดข้อความ <span class="text-red-500">*</span></label>
+                            <textarea id="msg-text" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-800 text-sm focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark transition-all resize-none" placeholder="ระบุข้อความที่ต้องการฝากบอก..."></textarea>
+                        </div>
+
+                        <!-- แถวที่ 2: แบ่ง Grid 2 ช่อง (ซ้าย-ขวา) สำหรับ iPad/Desktop -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                            
+                            <!-- แท็ก -->
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">บัญชีผู้ใช้ (Instagram Tag)</label>
+                                <input type="text" id="msg-tags" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-800 text-sm focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark transition-all" placeholder="เช่น @drea.m0067">
+                            </div>
+
+                            <!-- อัปโหลดไฟล์ -->
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">เอกสารแนบ (รูปภาพ/วิดีโอ)</label>
+                                <input type="file" id="msg-files" multiple accept="image/*,video/*" class="block w-full text-sm text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-brand-dark hover:file:bg-slate-200 cursor-pointer border border-slate-200 rounded-xl p-1.5 bg-slate-50">
+                            </div>
+
+                            <!-- กล่องตั้งค่า 1: โปรไฟล์ -->
+                            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                <div>
+                                    <h4 class="font-semibold text-slate-800 text-sm">การเปิดเผยตัวตน</h4>
+                                    <p class="text-xs text-slate-500 mt-0.5">เปิดเพื่อแสดงชื่อผู้ส่ง</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="toggle-profile" class="sr-only peer">
+                                    <div class="w-10 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-orange"></div>
+                                </label>
+                            </div>
+                            
+                            <!-- กล่องตั้งค่า 2: เพลง -->
+                            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                <div>
+                                    <h4 class="font-semibold text-slate-800 text-sm">ดนตรีประกอบ</h4>
+                                    <p class="text-xs text-slate-500 mt-0.5">แนบเสียงเพลงในโพสต์</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="toggle-music" class="sr-only peer">
+                                    <div class="w-10 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-orange"></div>
+                                </label>
+                            </div>
+
+                        </div>
+
+                        <!-- ปุ่มส่ง -->
+                        <div class="pt-4 mt-2 border-t border-slate-100 flex justify-end">
+                            <button id="btn-submit-post" class="w-full md:w-auto bg-brand-dark hover:bg-slate-800 text-white py-3 px-8 rounded-xl font-semibold text-sm transition-all shadow-md">
+                                ยืนยันการส่งคำขอ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: ประวัติ (แบบการ์ดตาราง) -->
+                <div id="tab-history" class="content-tab hidden animate-fade-in">
+                    <header class="mb-8">
+                        <h2 class="text-2xl md:text-3xl font-bold text-brand-dark mb-1">ประวัติคำขอ</h2>
+                        <p class="text-slate-500 text-sm">ตรวจสอบสถานะและผลการพิจารณาคำขอของคุณ</p>
+                    </header>
+                    <div id="history-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Data will load here -->
+                    </div>
+                </div>
+
             </div>
-        </section>
+        </main>
+    </section>
 
-        <!-- VIEW: ADMIN DASHBOARD (หน้าแอดมิน) -->
-        <section id="view-admin" class="view-section hidden flex-col gap-8 mt-10 animate-fade-in-up">
-            <div class="flex justify-between items-center bg-white/90 p-6 rounded-2xl shadow-sm border border-gray-100">
-                <h2 class="text-2xl font-bold text-brand-dark">ระบบจัดการข้อความ</h2>
-                <button id="btn-refresh" class="text-sm bg-gray-100 px-6 py-2 rounded-full hover:bg-gray-200 transition-colors font-medium">รีเฟรชข้อมูล</button>
-            </div>
-            <div id="admin-pending" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        </section>
-
-    </main>
-
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none opacity-0 transition-all duration-300 transform translate-y-4">
-        <div class="bg-brand-dark text-white px-8 py-4 rounded-full text-sm font-medium shadow-2xl flex items-center gap-3">
-            <span class="w-2 h-2 rounded-full bg-brand-purple animate-pulse"></span>
-            <span id="toast-msg">แจ้งเตือน</span>
+    <!-- Toast Notification (ดีไซน์ใหม่) -->
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 md:left-auto md:right-8 md:translate-x-0 z-[9999] pointer-events-none opacity-0 transition-all duration-300 transform translate-y-4">
+        <div class="bg-brand-dark text-white px-6 py-3.5 rounded-lg shadow-xl flex items-center gap-3 border border-slate-700 min-w-[250px]">
+            <span class="w-2 h-2 rounded-full bg-brand-orange animate-pulse"></span>
+            <span id="toast-msg" class="text-sm font-medium">System Notification</span>
         </div>
     </div>
 
