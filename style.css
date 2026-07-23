@@ -1,77 +1,61 @@
-/* ==========================================
-   WARM NEUTRAL DESIGN SYSTEM
-========================================== */
-body {
+/* ล็อกหน้าจอ 100% ไม่ให้เลื่อนซ้ายขวา */
+html, body {
+    max-width: 100vw;
+    overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    scrollbar-width: none; 
 }
-* { scrollbar-width: none; }
+
+/* ซ่อน Scrollbar แนวตั้งให้ดูเนียนตา */
 ::-webkit-scrollbar { display: none; }
+* { scrollbar-width: none; }
 
-/* Custom CSS Loader */
-.loader-circle {
-    width: 50px;
-    height: 50px;
-    border: 3px solid rgba(74, 63, 53, 0.1); /* Warm-800 with low opacity */
-    border-radius: 50%;
-    border-top-color: #B45309; /* Amber-700 */
-    animation: spin 1s ease-in-out infinite;
-}
-@keyframes spin {
-    to { transform: rotate(360deg); }
+/* ลายตาราง Grid พื้นหลัง */
+.bg-grid {
+    background-size: 50px 50px;
+    background-image: 
+        linear-gradient(to right, rgba(147, 51, 234, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(147, 51, 234, 0.05) 1px, transparent 1px);
 }
 
-/* CSS Banter Toggle (React-style Smooth Toggle) */
-input:checked ~ .toggle-track {
-    background-color: #B45309; /* Amber-700 */
-}
-input:checked ~ .toggle-dot {
-    transform: translateX(100%);
-    background-color: #FFF;
-}
-.toggle-track {
-    transition: background-color 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-}
-.toggle-dot {
-    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-}
+/* CSS Toggle (สวิตช์เปิด-ปิด) */
+input:checked ~ .toggle-track { background-color: #9333EA; }
+input:checked ~ .toggle-dot { transform: translateX(100%); }
+.toggle-track, .toggle-dot { transition: all 0.3s ease; }
 
-/* Glass & Card Effects */
-.glass-panel {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.5);
-}
-
-.history-card {
-    background: #FFFFFF;
-    border: 1px solid #F0EBE1;
+/* การ์ดข้อความ */
+.message-card {
+    background: #ffffff;
     border-radius: 1.5rem;
     padding: 1.5rem;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.02);
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    border: 1px solid rgba(147, 51, 234, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.history-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.05);
-    border-color: #E2D9C8;
+.message-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(147, 51, 234, 0.1);
 }
 
-/* Status Badges */
+/* ป้ายสถานะ */
 .badge {
     padding: 4px 12px;
     border-radius: 9999px;
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    font-weight: 700;
+    font-size: 0.75rem;
+    font-weight: 600;
 }
-.badge.pending { background: #F3F4F6; color: #6B7280; }
-.badge.approved { background: #ECFDF5; color: #059669; }
-.badge.rejected { background: #FEF2F2; color: #DC2626; }
+.badge.pending { background: #FEF3C7; color: #92400E; }
+.badge.approved { background: #D1FAE5; color: #065F46; }
+.badge.rejected { background: #FEE2E2; color: #991B1B; }
 
-/* View Control */
+/* ระบบสลับหน้าจอ (แก้ปัญหาจอดำ) */
 .view-section { display: none; }
-.view-section.active { display: flex; }
+.view-section.flex { display: flex; }
+
+/* อนิเมชันเลื่อนขึ้นแบบนุ่มๆ */
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
