@@ -15,7 +15,7 @@
                     colors: {
                         brand: {
                             orange: '#E85D22', 
-                            dark: '#1E293B', // เปลี่ยนเป็นสีกรมท่าเข้ม ดูเป็นทางการ
+                            dark: '#1E293B',
                             gray: '#F8FAFC',
                             border: '#E2E8F0'
                         }
@@ -24,17 +24,95 @@
             }
         }
     </script>
+    
+    <!-- นำเข้า Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="style.css">
+
+    <!-- ==============================
+         ส่วนของ CSS (ย้ายมาจาก style.css)
+    =============================== -->
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+        .nav-btn {
+            color: #64748B;
+        }
+        .nav-btn:hover {
+            background-color: #F8FAFC;
+            color: #0F172A;
+        }
+        .nav-btn.active {
+            background-color: #F1F5F9;
+            color: #E85D22;
+            font-weight: 600;
+            border-right: 3px solid #E85D22;
+            border-radius: 0.5rem 0 0 0.5rem;
+        }
+
+        .view-section { display: none; }
+        .view-section.flex { display: flex; }
+
+        .content-tab { display: none; }
+        .content-tab.active { display: block; }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .history-card {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 1rem;
+            padding: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 0.375rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+        }
+        .badge.pending { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+        .badge.approved { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
+        .badge.rejected { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+    </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans h-screen w-screen overflow-hidden selection:bg-brand-orange selection:text-white">
 
     <!-- ==========================================
          VIEW 1: LOGIN PAGE 
-         (แนวนอนแบ่งครึ่ง / แนวตั้งรูปอยู่บนหรือซ่อน)
     =========================================== -->
     <section id="view-login" class="view-section flex flex-col lg:flex-row h-full w-full bg-white z-50 absolute inset-0">
-        <!-- ฝั่งซ้าย: รูปภาพ (ซ่อนในมือถือ/iPad แนวตั้ง เพื่อความสะอาดตา) -->
         <div class="hidden lg:flex w-1/2 h-full bg-slate-900 relative">
             <img src="photo/login-bg.jpg" alt="Login Cover" class="w-full h-full object-cover opacity-60 mix-blend-overlay">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
@@ -45,10 +123,8 @@
             </div>
         </div>
         
-        <!-- ฝั่งขวา: ฟอร์มล็อกอิน (จัดกลางเสมอ) -->
         <div class="w-full lg:w-1/2 h-full flex flex-col justify-center items-center p-8 bg-white">
             <div class="w-full max-w-sm flex flex-col text-center lg:text-left">
-                <!-- โลโก้โชว์เฉพาะหน้าจอเล็ก -->
                 <img src="photo/logo.png" alt="Logo" class="h-12 w-auto mb-8 mx-auto lg:hidden bg-brand-dark rounded-lg p-2">
                 
                 <h2 class="text-3xl font-bold text-brand-dark mb-2">เข้าสู่ระบบ</h2>
@@ -67,11 +143,11 @@
     </section>
 
     <!-- ==========================================
-         VIEW 2: DASHBOARD (จัด Layout แบบแอป iPad)
+         VIEW 2: DASHBOARD
     =========================================== -->
     <section id="view-dashboard" class="view-section hidden flex-col md:flex-row h-full w-full">
         
-        <!-- SIDEBAR (ซ้ายมือ) -->
+        <!-- SIDEBAR -->
         <aside class="w-full md:w-64 lg:w-72 h-auto md:h-full bg-white border-r border-brand-border flex flex-col z-20 shrink-0">
             <div class="p-6 flex items-center gap-4">
                 <div class="bg-brand-dark p-2 rounded-lg">
@@ -80,7 +156,6 @@
                 <div class="font-bold text-brand-dark tracking-wide">PORTAL</div>
             </div>
 
-            <!-- เมนูนำทาง -->
             <nav class="flex-1 px-4 flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
                 <button onclick="switchTab('tab-home')" class="nav-btn active flex items-center gap-3 w-full px-4 py-3 rounded-xl text-left transition-all text-sm font-medium whitespace-nowrap">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
@@ -96,7 +171,6 @@
                 </button>
             </nav>
 
-            <!-- ส่วนผู้ใช้งาน (ซ่อนในมือถือ แต่โชว์ใน iPad/Desktop) -->
             <div class="hidden md:block p-4 mt-auto border-t border-brand-border bg-slate-50/50">
                 <div class="text-xs font-semibold text-slate-500 mb-1 truncate" id="user-email-display">user@email.com</div>
                 <div class="flex gap-2 mt-3">
@@ -110,12 +184,12 @@
             </div>
         </aside>
 
-        <!-- MAIN CONTENT AREA (พื้นที่แสดงผล) -->
+        <!-- MAIN CONTENT AREA -->
         <main class="flex-1 h-full overflow-y-auto bg-slate-50 p-6 md:p-10 relative">
             
-            <div class="max-w-4xl mx-auto"> <!-- กล่องคุมความกว้าง ไม่ให้ยืดเกินไป -->
+            <div class="max-w-4xl mx-auto">
                 
-                <!-- Tab 1: ภาพรวม -->
+                <!-- Tab 1 -->
                 <div id="tab-home" class="content-tab active animate-fade-in">
                     <header class="mb-8">
                         <h2 class="text-2xl md:text-3xl font-bold text-brand-dark mb-1">ยินดีต้อนรับสู่ระบบ</h2>
@@ -126,7 +200,7 @@
                     </div>
                 </div>
 
-                <!-- Tab 2: ฝากบอก (ปรับเป็น Grid ไม่ให้ยืด) -->
+                <!-- Tab 2 -->
                 <div id="tab-submit" class="content-tab hidden animate-fade-in">
                     <header class="mb-8">
                         <h2 class="text-2xl md:text-3xl font-bold text-brand-dark mb-1">แบบฟอร์มฝากบอก</h2>
@@ -134,29 +208,22 @@
                     </header>
                     
                     <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-brand-border flex flex-col gap-6">
-                        
-                        <!-- แถวที่ 1: ข้อความเต็มความกว้าง -->
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">รายละเอียดข้อความ <span class="text-red-500">*</span></label>
                             <textarea id="msg-text" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-800 text-sm focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark transition-all resize-none" placeholder="ระบุข้อความที่ต้องการฝากบอก..."></textarea>
                         </div>
 
-                        <!-- แถวที่ 2: แบ่ง Grid 2 ช่อง (ซ้าย-ขวา) สำหรับ iPad/Desktop -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                            
-                            <!-- แท็ก -->
                             <div>
                                 <label class="block text-sm font-semibold text-slate-700 mb-2">บัญชีผู้ใช้ (Instagram Tag)</label>
                                 <input type="text" id="msg-tags" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-800 text-sm focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark transition-all" placeholder="เช่น @drea.m0067">
                             </div>
 
-                            <!-- อัปโหลดไฟล์ -->
                             <div>
                                 <label class="block text-sm font-semibold text-slate-700 mb-2">เอกสารแนบ (รูปภาพ/วิดีโอ)</label>
                                 <input type="file" id="msg-files" multiple accept="image/*,video/*" class="block w-full text-sm text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-brand-dark hover:file:bg-slate-200 cursor-pointer border border-slate-200 rounded-xl p-1.5 bg-slate-50">
                             </div>
 
-                            <!-- กล่องตั้งค่า 1: โปรไฟล์ -->
                             <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
                                 <div>
                                     <h4 class="font-semibold text-slate-800 text-sm">การเปิดเผยตัวตน</h4>
@@ -168,7 +235,6 @@
                                 </label>
                             </div>
                             
-                            <!-- กล่องตั้งค่า 2: เพลง -->
                             <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
                                 <div>
                                     <h4 class="font-semibold text-slate-800 text-sm">ดนตรีประกอบ</h4>
@@ -179,10 +245,8 @@
                                     <div class="w-10 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-orange"></div>
                                 </label>
                             </div>
-
                         </div>
 
-                        <!-- ปุ่มส่ง -->
                         <div class="pt-4 mt-2 border-t border-slate-100 flex justify-end">
                             <button id="btn-submit-post" class="w-full md:w-auto bg-brand-dark hover:bg-slate-800 text-white py-3 px-8 rounded-xl font-semibold text-sm transition-all shadow-md">
                                 ยืนยันการส่งคำขอ
@@ -191,7 +255,7 @@
                     </div>
                 </div>
 
-                <!-- Tab 3: ประวัติ (แบบการ์ดตาราง) -->
+                <!-- Tab 3 -->
                 <div id="tab-history" class="content-tab hidden animate-fade-in">
                     <header class="mb-8">
                         <h2 class="text-2xl md:text-3xl font-bold text-brand-dark mb-1">ประวัติคำขอ</h2>
@@ -206,7 +270,7 @@
         </main>
     </section>
 
-    <!-- Toast Notification (ดีไซน์ใหม่) -->
+    <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 md:left-auto md:right-8 md:translate-x-0 z-[9999] pointer-events-none opacity-0 transition-all duration-300 transform translate-y-4">
         <div class="bg-brand-dark text-white px-6 py-3.5 rounded-lg shadow-xl flex items-center gap-3 border border-slate-700 min-w-[250px]">
             <span class="w-2 h-2 rounded-full bg-brand-orange animate-pulse"></span>
@@ -214,6 +278,225 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+
+    <!-- ==============================
+         ส่วนของ JAVASCRIPT (ย้ายมาจาก script.js)
+    =============================== -->
+    <script defer>
+        /**
+         * FAKBOKNTUN - Enterprise Dashboard Logic
+         */
+        const SUPABASE_URL = 'https://uffczgkjrdqqactsjuiy.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmZmN6Z2tqcmRxcWFjdHNqdWl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2NjQ2NDEsImV4cCI6MjEwMDI0MDY0MX0.o8yrwmKb_6f_9ZTQp9QRuv5MSV_DGMnpUBHM4A7RbI8';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const IG_USER_ID = ''; 
+        const IG_ACCESS_TOKEN = '';
+
+        let currentUser = null;
+
+        // ==========================================
+        // UI HELPERS
+        // ==========================================
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            if(!toast || !toastMsg) return;
+            
+            toastMsg.textContent = msg;
+            toast.style.opacity = '1';
+            toast.style.transform = window.innerWidth >= 768 ? 'translateY(0)' : 'translateY(0) translateX(-50%)';
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = window.innerWidth >= 768 ? 'translateY(16px)' : 'translateY(16px) translateX(-50%)';
+            }, 4000);
+        }
+
+        function escape(str) {
+            if(!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function switchMainView(viewId) {
+            document.querySelectorAll('.view-section').forEach(v => {
+                v.classList.remove('flex');
+                v.classList.add('hidden');
+            });
+            const view = document.getElementById(viewId);
+            if(view) {
+                view.classList.remove('hidden');
+                view.classList.add('flex');
+            }
+        }
+
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('.content-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            const targetTab = document.getElementById(tabId);
+            if(targetTab) targetTab.classList.add('active');
+            if(event && event.currentTarget) event.currentTarget.classList.add('active');
+
+            if(tabId === 'tab-history') fetchHistory();
+        }
+
+        // ==========================================
+        // ระบบหลัก (ทำงานเมื่อโหลดหน้าเว็บเสร็จ)
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // 1. ตรวจสอบสถานะล็อกอิน
+            async function initAuth() {
+                const { data: { session } } = await supabase.auth.getSession();
+                handleSession(session);
+            }
+
+            supabase.auth.onAuthStateChange((_e, session) => handleSession(session));
+
+            function handleSession(session) {
+                if (!session) {
+                    currentUser = null;
+                    switchMainView('view-login');
+                } else {
+                    currentUser = session.user;
+                    const emailDisplay = document.getElementById('user-email-display');
+                    if(emailDisplay) emailDisplay.textContent = currentUser.email;
+                    switchMainView('view-dashboard');
+                }
+            }
+
+            // 2. ผูกปุ่มเข้าสู่ระบบ Google
+            const btnLogin = document.getElementById('btn-login');
+            if (btnLogin) {
+                btnLogin.addEventListener('click', async () => {
+                    btnLogin.innerHTML = 'กำลังเชื่อมต่อ...';
+                    btnLogin.disabled = true;
+
+                    try {
+                        const { data, error } = await supabase.auth.signInWithOAuth({ 
+                            provider: 'google', 
+                            options: { 
+                                redirectTo: window.location.origin + window.location.pathname,
+                                queryParams: { prompt: 'select_account' }
+                            } 
+                        });
+
+                        if (error) throw error;
+                        
+                    } catch (error) {
+                        console.error("Login Error:", error.message);
+                        showToast('เข้าสู่ระบบล้มเหลว: ' + error.message);
+                        btnLogin.innerHTML = 'ดำเนินการต่อด้วย Google';
+                        btnLogin.disabled = false;
+                    }
+                });
+            }
+
+            // 3. ผูกปุ่มออกจากระบบ
+            const btnLogout = document.getElementById('btn-logout');
+            if(btnLogout) {
+                btnLogout.addEventListener('click', async () => {
+                    await supabase.auth.signOut();
+                    window.location.reload();
+                });
+            }
+
+            // 4. ผูกฟอร์มส่งข้อมูล
+            const btnSubmit = document.getElementById('btn-submit-post');
+            if(btnSubmit) {
+                btnSubmit.addEventListener('click', async (e) => {
+                    const btn = e.currentTarget;
+                    const msgText = document.getElementById('msg-text').value.trim();
+                    const showProfile = document.getElementById('toggle-profile').checked;
+                    const hasMusic = document.getElementById('toggle-music').checked;
+                    const tags = document.getElementById('msg-tags').value.trim();
+                    
+                    if (!msgText) return showToast('กรุณาระบุรายละเอียดข้อความ');
+                    
+                    btn.disabled = true;
+                    btn.textContent = 'กำลังส่งข้อมูล...';
+
+                    try {
+                        const { error } = await supabase.from('messages').insert([{ 
+                            user_email: currentUser.email, 
+                            message_text: msgText, 
+                            status: 'pending',
+                            is_anonymous: !showProfile,
+                            tags: tags,
+                            has_music: hasMusic
+                        }]);
+
+                        if (error) throw error;
+
+                        document.getElementById('msg-text').value = '';
+                        document.getElementById('msg-tags').value = '';
+                        showToast('บันทึกข้อมูลสำเร็จแล้ว');
+                        
+                        switchTab('tab-history');
+                    } catch (err) {
+                        console.error(err);
+                        showToast('เกิดข้อผิดพลาดในการส่งข้อมูล');
+                    } finally {
+                        btn.disabled = false;
+                        btn.textContent = 'ยืนยันการส่งคำขอ';
+                    }
+                });
+            }
+
+            // ฟังก์ชันดึงประวัติ
+            window.fetchHistory = async function() {
+                const container = document.getElementById('history-container');
+                if(!container) return;
+                
+                container.innerHTML = '<p class="text-slate-400 text-sm col-span-full">กำลังโหลดข้อมูล...</p>';
+
+                const { data, error } = await supabase.from('messages').select('*').eq('user_email', currentUser.email).order('created_at', { ascending: false });
+                
+                if (error) {
+                    container.innerHTML = '<p class="text-red-500 text-sm col-span-full py-4">ดึงข้อมูลล้มเหลว</p>';
+                    return;
+                }
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<p class="text-slate-400 text-sm col-span-full py-4">ไม่พบประวัติการทำรายการ</p>';
+                    return;
+                }
+
+                container.innerHTML = data.map((msg) => {
+                    let statusText = 'PENDING';
+                    let reasonHtml = '';
+
+                    if(msg.status === 'approved') statusText = 'APPROVED';
+                    if(msg.status === 'rejected') {
+                        statusText = 'REJECTED';
+                        reasonHtml = `<div class="mt-4 p-3 bg-red-50 border border-red-100 text-red-700 text-xs rounded-lg"><strong>หมายเหตุ:</strong> ${escape(msg.reject_reason || 'ไม่ตรงตามเงื่อนไขการให้บริการ')}</div>`;
+                    }
+
+                    return `
+                    <div class="history-card animate-fade-in">
+                        <div>
+                            <div class="flex justify-between items-start mb-4 gap-2">
+                                <span class="badge ${msg.status}">${statusText}</span>
+                                <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider bg-slate-100 px-2 py-1 rounded">
+                                    ${msg.is_anonymous ? 'ปกปิดตัวตน' : 'เปิดเผยตัวตน'} 
+                                    ${msg.has_music ? ' • มีดนตรี' : ''}
+                                </span>
+                            </div>
+                            <p class="text-slate-700 text-sm leading-relaxed">${escape(msg.message_text)}</p>
+                            ${msg.tags ? `<p class="text-xs text-brand-orange mt-3 font-medium bg-orange-50 inline-block px-2 py-1 rounded border border-orange-100">🔗 ${escape(msg.tags)}</p>` : ''}
+                        </div>
+                        ${reasonHtml}
+                    </div>
+                    `;
+                }).join('');
+            }
+
+            // เริ่มทำงาน
+            initAuth();
+        });
+    </script>
 </body>
 </html>
