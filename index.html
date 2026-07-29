@@ -2,501 +2,318 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FAKBOKNTUN — Portal</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Kanit', 'sans-serif'] },
-                    colors: {
-                        brand: {
-                            orange: '#E85D22', 
-                            dark: '#1E293B',
-                            gray: '#F8FAFC',
-                            border: '#E2E8F0'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <!-- นำเข้า Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- ==============================
-         ส่วนของ CSS (ย้ายมาจาก style.css)
-    =============================== -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบฝากบอกอัตโนมัติ</title>
+    <!-- โหลด Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        html, body {
+        :root {
+            --coral-wave: linear-gradient(135deg, #ff7e67, #ff5c77);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --radius-24: 24px;
+            --text-light: #f5f5f5;
+        }
+
+        body {
             margin: 0;
-            padding: 0;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        ::-webkit-scrollbar {
-            width: 5px;
-            height: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #CBD5E1;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94A3B8;
-        }
-
-        .nav-btn {
-            color: #64748B;
-        }
-        .nav-btn:hover {
-            background-color: #F8FAFC;
-            color: #0F172A;
-        }
-        .nav-btn.active {
-            background-color: #F1F5F9;
-            color: #E85D22;
-            font-weight: 600;
-            border-right: 3px solid #E85D22;
-            border-radius: 0.5rem 0 0 0.5rem;
-        }
-
-        .view-section { display: none; }
-        .view-section.flex { display: flex; }
-
-        .content-tab { display: none; }
-        .content-tab.active { display: block; }
-
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .history-card {
-            background: white;
-            border: 1px solid #E2E8F0;
-            border-radius: 1rem;
-            padding: 1.25rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            font-family: 'Prompt', sans-serif;
+            background: #0f172a; /* Crypto Dashboard dark theme */
+            color: var(--text-light);
+            min-height: 100vh;
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at top right, rgba(255, 126, 103, 0.2), transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(255, 92, 119, 0.2), transparent 40%);
         }
-        .badge {
-            padding: 0.25rem 0.6rem;
-            border-radius: 0.375rem;
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.025em;
+
+        /* Glassmorphism & Tubelight Effect */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-24);
+            padding: 2rem;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 1px rgba(255, 255, 255, 0.4); /* Tubelight */
+            transition: all 0.3s ease;
         }
-        .badge.pending { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
-        .badge.approved { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
-        .badge.rejected { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+
+        .hidden { display: none !important; }
+
+        h1, h2, h3 { text-align: center; margin-top: 0; }
+
+        /* Glass Button */
+        .btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            transition: 0.3s;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: var(--coral-wave);
+            border: none;
+            box-shadow: 0 4px 15px rgba(255, 92, 119, 0.4), inset 0 1px 0 rgba(255,255,255,0.4);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.5); }
+        
+        .nav-menu {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .step-container { margin-top: 20px; }
+        
+        /* Member Photos */
+        .member-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            text-align: center;
+        }
+        .member-grid img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ff7e67;
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans h-screen w-screen overflow-hidden selection:bg-brand-orange selection:text-white">
+<body>
 
-    <!-- ==========================================
-         VIEW 1: LOGIN PAGE 
-    =========================================== -->
-    <section id="view-login" class="view-section flex flex-col lg:flex-row h-full w-full bg-white z-50 absolute inset-0">
-        <div class="hidden lg:flex w-1/2 h-full bg-slate-900 relative">
-            <img src="photo/login-bg.jpg" alt="Login Cover" class="w-full h-full object-cover opacity-60 mix-blend-overlay">
-            <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
-            <div class="absolute bottom-16 left-16 text-white max-w-lg">
-                <img src="photo/logo.png" alt="Logo" class="h-12 w-auto mb-6">
-                <h1 class="text-4xl font-bold mb-3 tracking-wide">FAKBOKNTUN PORTAL</h1>
-                <p class="text-lg text-slate-300 font-light">ระบบจัดการและรับส่งข้อความอย่างเป็นทางการ พื้นที่ปลอดภัยสำหรับความรู้สึกของคุณ</p>
+    <!-- 1. หน้าเข้าสู่ระบบ -->
+    <div id="view-login" class="glass-panel">
+        <h1>เข้าสู่ระบบ</h1>
+        <p style="text-align: center;">ล็อกอินเพื่อใช้งานระบบฝากบอก</p>
+        <button class="btn btn-primary" onclick="loginWithGoogle()">เข้าสู่ระบบด้วย Google</button>
+    </div>
+
+    <!-- 2. แอปหลัก (ซ่อนไว้จนกว่าจะล็อกอิน) -->
+    <div id="view-app" class="glass-panel hidden">
+        <div class="nav-menu">
+            <button class="btn" onclick="switchTab('tab-home')">หน้าแรก</button>
+            <button class="btn" onclick="switchTab('tab-submit')">ฝากบอก</button>
+            <button class="btn" onclick="switchTab('tab-status')">เช็คสถานะ</button>
+            <button id="btn-admin" class="btn hidden" style="background: #ff4757;" onclick="switchTab('tab-admin')">Admin Panel</button>
+            <button class="btn" onclick="logout()">ออกจากระบบ</button>
+        </div>
+
+        <!-- หน้าโฮม -->
+        <div id="tab-home" class="tab-content">
+            <h2>ยินดีต้อนรับสู่ระบบฝากบอก</h2>
+            <p><strong>วิธีใช้:</strong> ไปที่เมนู "ฝากบอก" ทำตามขั้นตอน และรอแอดมินอนุมัติเพื่อลงเพจเฟสบุ๊คอัตโนมัติ</p>
+            <hr style="border-color: var(--glass-border);">
+            <h3>ผู้สร้าง (Creators)</h3>
+            <div class="member-grid">
+                <div><img src="photo/member1.png" alt="M1" onerror="this.src='https://via.placeholder.com/60'"><br><small>ชื่อ 1</small></div>
+                <div><img src="photo/member2.png" alt="M2" onerror="this.src='https://via.placeholder.com/60'"><br><small>ชื่อ 2</small></div>
+                <div><img src="photo/member3.png" alt="M3" onerror="this.src='https://via.placeholder.com/60'"><br><small>ชื่อ 3</small></div>
+                <div><img src="photo/member4.png" alt="M4" onerror="this.src='https://via.placeholder.com/60'"><br><small>ชื่อ 4</small></div>
+                <div><img src="photo/member5.png" alt="M5" onerror="this.src='https://via.placeholder.com/60'"><br><small>ชื่อ 5</small></div>
             </div>
         </div>
-        
-        <div class="w-full lg:w-1/2 h-full flex flex-col justify-center items-center p-8 bg-white">
-            <div class="w-full max-w-sm flex flex-col text-center lg:text-left">
-                <img src="photo/logo.png" alt="Logo" class="h-12 w-auto mb-8 mx-auto lg:hidden bg-brand-dark rounded-lg p-2">
-                
-                <h2 class="text-3xl font-bold text-brand-dark mb-2">เข้าสู่ระบบ</h2>
-                <p class="text-slate-500 mb-10 text-sm">กรุณายืนยันตัวตนผ่านบัญชี Google เพื่อเข้าใช้งานระบบ</p>
-                
-                <button id="btn-login" class="w-full bg-brand-dark hover:bg-slate-800 text-white py-3.5 px-6 rounded-xl font-medium transition-all shadow-md flex justify-center items-center gap-3 border border-slate-700">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"/></svg>
-                    ดำเนินการต่อด้วย Google
-                </button>
-                
-                <div class="mt-8 pt-6 border-t border-slate-100 text-xs text-slate-400 text-center">
-                    ระบบได้รับการคุ้มครองความปลอดภัยตามมาตรฐาน<br>© 2026 Fakbokntun. All rights reserved.
+
+        <!-- หน้าฝากบอก (Steps) -->
+        <div id="tab-submit" class="tab-content hidden">
+            <h2>ฝากบอกความในใจ</h2>
+            <div class="step-container" id="step-1">
+                <h3>1. ตั้งค่าโปรไฟล์</h3>
+                <select id="isAnonymous">
+                    <option value="true">ปิดโปรไฟล์ (ไม่ระบุตัวตน)</option>
+                    <option value="false">เปิดโปรไฟล์</option>
+                </select>
+                <button class="btn btn-primary" onclick="nextStep(2)">ถัดไป</button>
+            </div>
+
+            <div class="step-container hidden" id="step-2">
+                <h3>2. ข้อความฝากบอก</h3>
+                <textarea id="msgContent" rows="4" placeholder="พิมพ์สิ่งที่คุณต้องการฝากบอก..."></textarea>
+                <button class="btn btn-primary" onclick="nextStep(3)">ถัดไป</button>
+            </div>
+
+            <div class="step-container hidden" id="step-3">
+                <h3>3. รูปภาพ / วิดีโอ (เลือกได้)</h3>
+                <input type="file" id="mediaUpload" accept="image/*,video/*">
+                <button class="btn btn-primary" onclick="nextStep(4)">ถัดไป</button>
+            </div>
+
+            <div class="step-container hidden" id="step-4">
+                <h3>4. ใส่เพลง (Spotify)</h3>
+                <input type="text" id="songName" placeholder="ค้นหาชื่อเพลง (ถ้ามี)">
+                <button class="btn btn-primary" onclick="nextStep(5)">ถัดไป</button>
+            </div>
+
+            <div class="step-container hidden" id="step-5">
+                <h3>5. แท็กเพิ่มเติม</h3>
+                <p><small>แฮชแท็กหลัก: #ฝากบอก #ฝากบอกนตอน. #autofakbokntun จะถูกเติมให้อัตโนมัติ</small></p>
+                <input type="text" id="tagTarget" placeholder="แท็ก IG หรือ ชื่อ (เช่น @drea.m0067)">
+                <button class="btn btn-primary" onclick="submitPost()">ส่งข้อความฝากบอก</button>
+            </div>
+        </div>
+
+        <!-- หน้าสถานะ -->
+        <div id="tab-status" class="tab-content hidden">
+            <h2>สถานะการฝากบอกของคุณ</h2>
+            <div id="my-posts-list">
+                <!-- ข้อมูลตัวอย่าง -->
+                <div class="glass-panel" style="padding: 1rem; width: auto; margin-bottom: 10px;">
+                    <p><strong>ข้อความ:</strong> แอบชอบคนนั้นจัง...</p>
+                    <p>สถานะ: <span style="color: #f1c40f;">รอดำเนินการ</span></p>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- ==========================================
-         VIEW 2: DASHBOARD
-    =========================================== -->
-    <section id="view-dashboard" class="view-section hidden flex-col md:flex-row h-full w-full">
-        
-        <!-- SIDEBAR -->
-        <aside class="w-full md:w-64 lg:w-72 h-auto md:h-full bg-white border-r border-brand-border flex flex-col z-20 shrink-0">
-            <div class="p-6 flex items-center gap-4">
-                <div class="bg-brand-dark p-2 rounded-lg">
-                    <img src="photo/logo.png" alt="Logo" class="h-8 w-auto">
-                </div>
-                <div class="font-bold text-brand-dark tracking-wide">PORTAL</div>
+        <!-- หน้า Admin -->
+        <div id="tab-admin" class="tab-content hidden">
+            <h2>แผงควบคุม (Admin)</h2>
+            <div class="nav-menu">
+                <button class="btn" onclick="showAdminSection('admin-approve')">พิจารณาโพสต์</button>
+                <button class="btn" onclick="showAdminSection('admin-manage')">จัดการแอดมิน</button>
             </div>
 
-            <nav class="flex-1 px-4 flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
-                <button onclick="switchTab('tab-home')" class="nav-btn active flex items-center gap-3 w-full px-4 py-3 rounded-xl text-left transition-all text-sm font-medium whitespace-nowrap">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                    ภาพรวม (Overview)
-                </button>
-                <button onclick="switchTab('tab-submit')" class="nav-btn flex items-center gap-3 w-full px-4 py-3 rounded-xl text-left transition-all text-sm font-medium whitespace-nowrap">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                    ส่งคำขอฝากบอก
-                </button>
-                <button onclick="switchTab('tab-history')" class="nav-btn flex items-center gap-3 w-full px-4 py-3 rounded-xl text-left transition-all text-sm font-medium whitespace-nowrap">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    ประวัติคำขอ
-                </button>
-            </nav>
-
-            <div class="hidden md:block p-4 mt-auto border-t border-brand-border bg-slate-50/50">
-                <div class="text-xs font-semibold text-slate-500 mb-1 truncate" id="user-email-display">user@email.com</div>
-                <div class="flex gap-2 mt-3">
-                    <button id="btn-logout" class="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-slate-100 text-slate-700 py-2 border border-slate-200 rounded-lg text-xs font-medium transition-colors shadow-sm">
-                        ออกจากระบบ
-                    </button>
-                    <button class="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50">
-                        🇹🇭
-                    </button>
+            <div id="admin-approve">
+                <!-- ระบบดึงข้อมูลจาก Firebase มาแสดงตรงนี้ -->
+                <p>โพสต์รอการอนุมัติจะแสดงที่นี่...</p>
+                <!-- ตัวอย่าง -->
+                <div class="glass-panel" style="padding: 1rem; width: auto; border-color: #ff4757;">
+                    <p><strong>ผู้ฝาก:</strong> ไม่ระบุตัวตน</p>
+                    <p><strong>ข้อความ:</strong> เทสระบบจ้า</p>
+                    <button class="btn" style="background: #2ed573;">อนุมัติ (โพสต์ลงเพจ)</button>
+                    <button class="btn" style="background: #ff4757;">ไม่อนุมัติ</button>
+                    <input type="text" placeholder="เหตุผลที่ไม่อนุมัติ (ถ้ามี)">
                 </div>
             </div>
-        </aside>
 
-        <!-- MAIN CONTENT AREA -->
-        <main class="flex-1 h-full overflow-y-auto bg-slate-50 p-6 md:p-10 relative">
-            
-            <div class="max-w-4xl mx-auto">
-                
-                <!-- Tab 1 -->
-                <div id="tab-home" class="content-tab active animate-fade-in">
-                    <header class="mb-8">
-                        <h2 class="text-2xl md:text-3xl font-bold text-brand-dark mb-1">ยินดีต้อนรับสู่ระบบ</h2>
-                        <p class="text-slate-500 text-sm">คู่มือการใช้งานและการตั้งค่าเบื้องต้น</p>
-                    </header>
-                    <div class="bg-white rounded-2xl p-2 shadow-sm border border-brand-border overflow-hidden">
-                        <img src="photo/tutorial.jpg" alt="Tutorial" class="w-full h-auto rounded-xl bg-slate-100 object-cover">
-                    </div>
-                </div>
-
-                <!-- Tab 2 -->
-                <div id="tab-submit" class="content-tab hidden animate-fade-in">
-                    <header class="mb-8">
-                        <h2 class="text-2xl md:text-3xl font-bold text-brand-dark mb-1">แบบฟอร์มฝากบอก</h2>
-                        <p class="text-slate-500 text-sm">โปรดกรอกข้อมูลให้ครบถ้วนเพื่อส่งเข้าสู่ระบบพิจารณา</p>
-                    </header>
-                    
-                    <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-brand-border flex flex-col gap-6">
-                        <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-2">รายละเอียดข้อความ <span class="text-red-500">*</span></label>
-                            <textarea id="msg-text" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-800 text-sm focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark transition-all resize-none" placeholder="ระบุข้อความที่ต้องการฝากบอก..."></textarea>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-2">บัญชีผู้ใช้ (Instagram Tag)</label>
-                                <input type="text" id="msg-tags" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-800 text-sm focus:outline-none focus:border-brand-dark focus:ring-1 focus:ring-brand-dark transition-all" placeholder="เช่น @drea.m0067">
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-2">เอกสารแนบ (รูปภาพ/วิดีโอ)</label>
-                                <input type="file" id="msg-files" multiple accept="image/*,video/*" class="block w-full text-sm text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-brand-dark hover:file:bg-slate-200 cursor-pointer border border-slate-200 rounded-xl p-1.5 bg-slate-50">
-                            </div>
-
-                            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
-                                <div>
-                                    <h4 class="font-semibold text-slate-800 text-sm">การเปิดเผยตัวตน</h4>
-                                    <p class="text-xs text-slate-500 mt-0.5">เปิดเพื่อแสดงชื่อผู้ส่ง</p>
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="toggle-profile" class="sr-only peer">
-                                    <div class="w-10 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-orange"></div>
-                                </label>
-                            </div>
-                            
-                            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
-                                <div>
-                                    <h4 class="font-semibold text-slate-800 text-sm">ดนตรีประกอบ</h4>
-                                    <p class="text-xs text-slate-500 mt-0.5">แนบเสียงเพลงในโพสต์</p>
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="toggle-music" class="sr-only peer">
-                                    <div class="w-10 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-orange"></div>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="pt-4 mt-2 border-t border-slate-100 flex justify-end">
-                            <button id="btn-submit-post" class="w-full md:w-auto bg-brand-dark hover:bg-slate-800 text-white py-3 px-8 rounded-xl font-semibold text-sm transition-all shadow-md">
-                                ยืนยันการส่งคำขอ
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab 3 -->
-                <div id="tab-history" class="content-tab hidden animate-fade-in">
-                    <header class="mb-8">
-                        <h2 class="text-2xl md:text-3xl font-bold text-brand-dark mb-1">ประวัติคำขอ</h2>
-                        <p class="text-slate-500 text-sm">ตรวจสอบสถานะและผลการพิจารณาคำขอของคุณ</p>
-                    </header>
-                    <div id="history-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Data will load here -->
-                    </div>
-                </div>
-
+            <div id="admin-manage" class="hidden">
+                <h3>เพิ่มสิทธิ์ Admin</h3>
+                <input type="email" id="newAdminEmail" placeholder="ใส่อีเมลแอดมินใหม่">
+                <button class="btn btn-primary">เพิ่มแอดมิน</button>
             </div>
-        </main>
-    </section>
-
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 md:left-auto md:right-8 md:translate-x-0 z-[9999] pointer-events-none opacity-0 transition-all duration-300 transform translate-y-4">
-        <div class="bg-brand-dark text-white px-6 py-3.5 rounded-lg shadow-xl flex items-center gap-3 border border-slate-700 min-w-[250px]">
-            <span class="w-2 h-2 rounded-full bg-brand-orange animate-pulse"></span>
-            <span id="toast-msg" class="text-sm font-medium">System Notification</span>
         </div>
     </div>
 
+    <!-- Firebase SDK (Modular) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    <!-- ==============================
-         ส่วนของ JAVASCRIPT (ย้ายมาจาก script.js)
-    =============================== -->
-    <script defer>
-        /**
-         * FAKBOKNTUN - Enterprise Dashboard Logic
-         */
-        const SUPABASE_URL = 'https://uffczgkjrdqqactsjuiy.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmZmN6Z2tqcmRxcWFjdHNqdWl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2NjQ2NDEsImV4cCI6MjEwMDI0MDY0MX0.o8yrwmKb_6f_9ZTQp9QRuv5MSV_DGMnpUBHM4A7RbI8';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2zMKpTSfxG_ArBM5SAw5gKJoFhlbfZxg",
+            authDomain: "fakbokntun-532f2.firebaseapp.com",
+            databaseURL: "https://fakbokntun-532f2-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "fakbokntun-532f2",
+            storageBucket: "fakbokntun-532f2.firebasestorage.app",
+            messagingSenderId: "701936376545",
+            appId: "1:701936376545:web:1ca5f255771f4e8d93f5a0",
+            measurementId: "G-H99SG0G03N"
+        };
 
-        const IG_USER_ID = ''; 
-        const IG_ACCESS_TOKEN = '';
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const provider = new GoogleAuthProvider();
 
+        const superAdminEmail = "aceaa372@gmail.com";
         let currentUser = null;
 
-        // ==========================================
-        // UI HELPERS
-        // ==========================================
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toast-msg');
-            if(!toast || !toastMsg) return;
-            
-            toastMsg.textContent = msg;
-            toast.style.opacity = '1';
-            toast.style.transform = window.innerWidth >= 768 ? 'translateY(0)' : 'translateY(0) translateX(-50%)';
-
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = window.innerWidth >= 768 ? 'translateY(16px)' : 'translateY(16px) translateX(-50%)';
-            }, 4000);
-        }
-
-        function escape(str) {
-            if(!str) return '';
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
-        function switchMainView(viewId) {
-            document.querySelectorAll('.view-section').forEach(v => {
-                v.classList.remove('flex');
-                v.classList.add('hidden');
-            });
-            const view = document.getElementById(viewId);
-            if(view) {
-                view.classList.remove('hidden');
-                view.classList.add('flex');
-            }
-        }
-
-        window.switchTab = function(tabId) {
-            document.querySelectorAll('.content-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            
-            const targetTab = document.getElementById(tabId);
-            if(targetTab) targetTab.classList.add('active');
-            if(event && event.currentTarget) event.currentTarget.classList.add('active');
-
-            if(tabId === 'tab-history') fetchHistory();
-        }
-
-        // ==========================================
-        // ระบบหลัก (ทำงานเมื่อโหลดหน้าเว็บเสร็จ)
-        // ==========================================
-        document.addEventListener('DOMContentLoaded', () => {
-
-            // 1. ตรวจสอบสถานะล็อกอิน
-            async function initAuth() {
-                const { data: { session } } = await supabase.auth.getSession();
-                handleSession(session);
-            }
-
-            supabase.auth.onAuthStateChange((_e, session) => handleSession(session));
-
-            function handleSession(session) {
-                if (!session) {
-                    currentUser = null;
-                    switchMainView('view-login');
-                } else {
-                    currentUser = session.user;
-                    const emailDisplay = document.getElementById('user-email-display');
-                    if(emailDisplay) emailDisplay.textContent = currentUser.email;
-                    switchMainView('view-dashboard');
-                }
-            }
-
-            // 2. ผูกปุ่มเข้าสู่ระบบ Google
-            const btnLogin = document.getElementById('btn-login');
-            if (btnLogin) {
-                btnLogin.addEventListener('click', async () => {
-                    btnLogin.innerHTML = 'กำลังเชื่อมต่อ...';
-                    btnLogin.disabled = true;
-
-                    try {
-                        const { data, error } = await supabase.auth.signInWithOAuth({ 
-                            provider: 'google', 
-                            options: { 
-                                redirectTo: window.location.origin + window.location.pathname,
-                                queryParams: { prompt: 'select_account' }
-                            } 
-                        });
-
-                        if (error) throw error;
-                        
-                    } catch (error) {
-                        console.error("Login Error:", error.message);
-                        showToast('เข้าสู่ระบบล้มเหลว: ' + error.message);
-                        btnLogin.innerHTML = 'ดำเนินการต่อด้วย Google';
-                        btnLogin.disabled = false;
-                    }
-                });
-            }
-
-            // 3. ผูกปุ่มออกจากระบบ
-            const btnLogout = document.getElementById('btn-logout');
-            if(btnLogout) {
-                btnLogout.addEventListener('click', async () => {
-                    await supabase.auth.signOut();
-                    window.location.reload();
-                });
-            }
-
-            // 4. ผูกฟอร์มส่งข้อมูล
-            const btnSubmit = document.getElementById('btn-submit-post');
-            if(btnSubmit) {
-                btnSubmit.addEventListener('click', async (e) => {
-                    const btn = e.currentTarget;
-                    const msgText = document.getElementById('msg-text').value.trim();
-                    const showProfile = document.getElementById('toggle-profile').checked;
-                    const hasMusic = document.getElementById('toggle-music').checked;
-                    const tags = document.getElementById('msg-tags').value.trim();
-                    
-                    if (!msgText) return showToast('กรุณาระบุรายละเอียดข้อความ');
-                    
-                    btn.disabled = true;
-                    btn.textContent = 'กำลังส่งข้อมูล...';
-
-                    try {
-                        const { error } = await supabase.from('messages').insert([{ 
-                            user_email: currentUser.email, 
-                            message_text: msgText, 
-                            status: 'pending',
-                            is_anonymous: !showProfile,
-                            tags: tags,
-                            has_music: hasMusic
-                        }]);
-
-                        if (error) throw error;
-
-                        document.getElementById('msg-text').value = '';
-                        document.getElementById('msg-tags').value = '';
-                        showToast('บันทึกข้อมูลสำเร็จแล้ว');
-                        
-                        switchTab('tab-history');
-                    } catch (err) {
-                        console.error(err);
-                        showToast('เกิดข้อผิดพลาดในการส่งข้อมูล');
-                    } finally {
-                        btn.disabled = false;
-                        btn.textContent = 'ยืนยันการส่งคำขอ';
-                    }
-                });
-            }
-
-            // ฟังก์ชันดึงประวัติ
-            window.fetchHistory = async function() {
-                const container = document.getElementById('history-container');
-                if(!container) return;
+        // สังเกตสถานะการล็อกอิน
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('view-login').classList.add('hidden');
+                document.getElementById('view-app').classList.remove('hidden');
                 
-                container.innerHTML = '<p class="text-slate-400 text-sm col-span-full">กำลังโหลดข้อมูล...</p>';
-
-                const { data, error } = await supabase.from('messages').select('*').eq('user_email', currentUser.email).order('created_at', { ascending: false });
-                
-                if (error) {
-                    container.innerHTML = '<p class="text-red-500 text-sm col-span-full py-4">ดึงข้อมูลล้มเหลว</p>';
-                    return;
+                // ตรวจสอบสิทธิ์ Admin (ตัวอย่างเช็คแค่ Super Admin)
+                // ของจริงควรเช็คใน Database ว่าอีเมลนี้อยู่ใน list แอดมินไหม
+                if (user.email === superAdminEmail) {
+                    document.getElementById('btn-admin').classList.remove('hidden');
                 }
-
-                if (!data || data.length === 0) {
-                    container.innerHTML = '<p class="text-slate-400 text-sm col-span-full py-4">ไม่พบประวัติการทำรายการ</p>';
-                    return;
-                }
-
-                container.innerHTML = data.map((msg) => {
-                    let statusText = 'PENDING';
-                    let reasonHtml = '';
-
-                    if(msg.status === 'approved') statusText = 'APPROVED';
-                    if(msg.status === 'rejected') {
-                        statusText = 'REJECTED';
-                        reasonHtml = `<div class="mt-4 p-3 bg-red-50 border border-red-100 text-red-700 text-xs rounded-lg"><strong>หมายเหตุ:</strong> ${escape(msg.reject_reason || 'ไม่ตรงตามเงื่อนไขการให้บริการ')}</div>`;
-                    }
-
-                    return `
-                    <div class="history-card animate-fade-in">
-                        <div>
-                            <div class="flex justify-between items-start mb-4 gap-2">
-                                <span class="badge ${msg.status}">${statusText}</span>
-                                <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider bg-slate-100 px-2 py-1 rounded">
-                                    ${msg.is_anonymous ? 'ปกปิดตัวตน' : 'เปิดเผยตัวตน'} 
-                                    ${msg.has_music ? ' • มีดนตรี' : ''}
-                                </span>
-                            </div>
-                            <p class="text-slate-700 text-sm leading-relaxed">${escape(msg.message_text)}</p>
-                            ${msg.tags ? `<p class="text-xs text-brand-orange mt-3 font-medium bg-orange-50 inline-block px-2 py-1 rounded border border-orange-100">🔗 ${escape(msg.tags)}</p>` : ''}
-                        </div>
-                        ${reasonHtml}
-                    </div>
-                    `;
-                }).join('');
+            } else {
+                document.getElementById('view-login').classList.remove('hidden');
+                document.getElementById('view-app').classList.add('hidden');
             }
-
-            // เริ่มทำงาน
-            initAuth();
         });
+
+        window.loginWithGoogle = () => {
+            signInWithPopup(auth, provider).catch((error) => {
+                alert("เกิดข้อผิดพลาด: " + error.message);
+            });
+        };
+
+        window.logout = () => {
+            signOut(auth);
+        };
+    </script>
+
+    <script>
+        // --- ระบบป้องกันการคลิกขวาและดูโค้ด (ตามคำขอ) ---
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                e.preventDefault();
+            }
+        });
+
+        // --- ระบบสลับหน้าต่าง (Tabs) ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+        }
+
+        function showAdminSection(sectionId) {
+            document.getElementById('admin-approve').classList.add('hidden');
+            document.getElementById('admin-manage').classList.add('hidden');
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+
+        // --- ระบบ Step ฝากบอก ---
+        function nextStep(step) {
+            document.querySelectorAll('.step-container').forEach(el => el.classList.add('hidden'));
+            document.getElementById('step-' + step).classList.remove('hidden');
+        }
+
+        function submitPost() {
+            alert('บันทึกข้อมูลเรียบร้อย! รอแอดมินอนุมัติ (ระบบเชื่อมต่อ Database จริงจะต้องเขียนโค้ดบันทึกลง Firebase ตรงนี้)');
+            // รีเซ็ตฟอร์มกลับไปหน้าแรก
+            nextStep(1);
+            switchTab('tab-status');
+        }
     </script>
 </body>
 </html>
