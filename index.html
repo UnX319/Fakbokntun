@@ -3,245 +3,442 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบฝากบอกอัตโนมัติ</title>
-    <!-- โหลด Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>ระบบฝากบอกอัตโนมัติ - Fakbokntun</title>
+    <!-- Prompt Font & Lucide Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            --coral-wave: linear-gradient(135deg, #ff7e67, #ff5c77);
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
+            --coral-wave: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            --coral-glow: rgba(255, 107, 107, 0.35);
+            --glass-bg: rgba(20, 26, 43, 0.65);
+            --glass-card: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --tubelight: inset 0 1px 1px 0 rgba(255, 255, 255, 0.3), 0 0 15px rgba(255, 107, 107, 0.2);
             --radius-24: 24px;
-            --text-light: #f5f5f5;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none; /* ป้องกันการคลุมดำข้อความ */
         }
 
         body {
             margin: 0;
+            padding: 20px;
             font-family: 'Prompt', sans-serif;
-            background: #0f172a; /* Crypto Dashboard dark theme */
-            color: var(--text-light);
+            background: #090d16;
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow-x: hidden;
-            background-image: radial-gradient(circle at top right, rgba(255, 126, 103, 0.2), transparent 40%),
-                              radial-gradient(circle at bottom left, rgba(255, 92, 119, 0.2), transparent 40%);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 107, 107, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 142, 83, 0.12) 0%, transparent 40%);
+            background-attachment: fixed;
         }
 
-        /* Glassmorphism & Tubelight Effect */
+        /* HeroUI & Crypto Dashboard Container */
         .glass-panel {
             background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
             border-radius: var(--radius-24);
-            padding: 2rem;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
-                        inset 0 1px 1px rgba(255, 255, 255, 0.4); /* Tubelight */
-            transition: all 0.3s ease;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 680px;
+            box-shadow: var(--tubelight), 0 20px 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
         }
 
         .hidden { display: none !important; }
 
-        h1, h2, h3 { text-align: center; margin-top: 0; }
+        h1, h2, h3 { 
+            margin-top: 0; 
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
 
-        /* Glass Button */
+        .gradient-text {
+            background: var(--coral-wave);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Tubelight Header Effect */
+        .header-glow {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        /* Glass Buttons */
         .btn {
-            background: var(--glass-bg);
+            background: var(--glass-card);
             border: 1px solid var(--glass-border);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 12px;
+            color: var(--text-main);
+            padding: 14px 20px;
+            border-radius: 16px;
             font-family: inherit;
-            font-size: 1rem;
+            font-size: 0.95rem;
+            font-weight: 500;
             cursor: pointer;
-            width: 100%;
-            margin-bottom: 10px;
-            transition: 0.3s;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
         .btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
         }
 
         .btn-primary {
             background: var(--coral-wave);
             border: none;
-            box-shadow: 0 4px 15px rgba(255, 92, 119, 0.4), inset 0 1px 0 rgba(255,255,255,0.4);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 20px var(--coral-glow), inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
 
+        .btn-primary:hover {
+            opacity: 0.95;
+            box-shadow: 0 6px 25px var(--coral-glow), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-full { width: 100%; }
+
+        /* Navigation Bar */
+        .nav-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-bottom: 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px;
+            border-radius: 18px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .nav-btn {
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            border: none;
+            background: transparent;
+            color: var(--text-sub);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: 0.3s;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            background: var(--glass-card);
+            color: var(--text-main);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Inputs & Controls */
         input, textarea, select {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 16px;
+            border-radius: 16px;
             border: 1px solid var(--glass-border);
-            background: rgba(0, 0, 0, 0.2);
-            color: white;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text-main);
             font-family: inherit;
-            box-sizing: border-box;
+            font-size: 0.95rem;
+            outline: none;
+            transition: 0.3s;
         }
 
-        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.5); }
-        
-        .nav-menu {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+        input:focus, textarea:focus, select:focus {
+            border-color: #ff7e67;
+            box-shadow: 0 0 12px var(--coral-glow);
         }
 
-        .step-container { margin-top: 20px; }
-        
-        /* Member Photos */
+        /* Member Grid */
         .member-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-top: 1.5rem;
             text-align: center;
         }
-        .member-grid img {
-            width: 60px;
-            height: 60px;
+
+        @media (max-width: 500px) {
+            .member-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .member-card {
+            background: var(--glass-card);
+            padding: 12px 6px;
+            border-radius: 18px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .member-card img {
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid #ff7e67;
+            margin-bottom: 6px;
+        }
+
+        /* Steps Indicator */
+        .step-progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .step-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            transition: 0.3s;
+        }
+
+        .step-dot.active {
+            background: var(--coral-wave);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 0 12px var(--coral-glow);
+        }
+
+        /* Post Status Badges */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .badge-pending { background: rgba(241, 196, 15, 0.2); color: #f1c40f; border: 1px solid rgba(241, 196, 15, 0.4); }
+        .badge-approved { background: rgba(46, 213, 115, 0.2); color: #2ed573; border: 1px solid rgba(46, 213, 115, 0.4); }
+        .badge-rejected { background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.4); }
+
+        .card-item {
+            background: var(--glass-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
 <body>
 
-    <!-- 1. หน้าเข้าสู่ระบบ -->
+    <!-- 1. หน้าเข้าสู่ระบบ (Login) -->
     <div id="view-login" class="glass-panel">
-        <h1>เข้าสู่ระบบ</h1>
-        <p style="text-align: center;">ล็อกอินเพื่อใช้งานระบบฝากบอก</p>
-        <button class="btn btn-primary" onclick="loginWithGoogle()">เข้าสู่ระบบด้วย Google</button>
+        <div class="header-glow">
+            <i data-lucide="message-square-heart" style="width: 48px; height: 48px; color: #ff7e67;"></i>
+            <h1 style="margin: 10px 0 5px 0;">ระบบ<span class="gradient-text">ฝากบอก</span></h1>
+            <p style="color: var(--text-sub); margin: 0; font-size: 0.9rem;">ส่งต่อความในใจผ่านระบบฝากบอกอัตโนมัติ</p>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="loginWithGoogle()">
+            <i data-lucide="log-in"></i> เข้าสู่ระบบด้วย Google
+        </button>
     </div>
 
-    <!-- 2. แอปหลัก (ซ่อนไว้จนกว่าจะล็อกอิน) -->
+    <!-- 2. หน้าแอปหลักหลังล็อกอิน -->
     <div id="view-app" class="glass-panel hidden">
+        
+        <!-- แถบเมนูนำทาง -->
         <div class="nav-menu">
-            <button class="btn" onclick="switchTab('tab-home')">หน้าแรก</button>
-            <button class="btn" onclick="switchTab('tab-submit')">ฝากบอก</button>
-            <button class="btn" onclick="switchTab('tab-status')">เช็คสถานะ</button>
-            <button id="btn-admin" class="btn hidden" style="background: #ff4757;" onclick="switchTab('tab-admin')">Admin Panel</button>
-            <button class="btn" onclick="logout()">ออกจากระบบ</button>
+            <button class="nav-btn active" id="nav-home" onclick="switchTab('tab-home')"><i data-lucide="home"></i> หน้าแรก</button>
+            <button class="nav-btn" id="nav-submit" onclick="switchTab('tab-submit')"><i data-lucide="send"></i> ฝากบอก</button>
+            <button class="nav-btn" id="nav-status" onclick="switchTab('tab-status')"><i data-lucide="clock"></i> สถานะ</button>
+            <button class="nav-btn hidden" id="btn-admin" style="color: #ff4757;" onclick="switchTab('tab-admin')"><i data-lucide="shield-alert"></i> Admin</button>
+            <button class="nav-btn" onclick="logout()" style="color: #a0a0a0;"><i data-lucide="log-out"></i></button>
         </div>
 
-        <!-- หน้าโฮม -->
+        <!-- Tab 1: หน้าแรก / สอนวิธีใช้ / รายชื่อสมาชิกผู้สร้าง -->
         <div id="tab-home" class="tab-content">
-            <h2>ยินดีต้อนรับสู่ระบบฝากบอก</h2>
-            <p><strong>วิธีใช้:</strong> ไปที่เมนู "ฝากบอก" ทำตามขั้นตอน และรอแอดมินอนุมัติเพื่อลงเพจเฟสบุ๊คอัตโนมัติ</p>
-            <hr style="border-color: var(--glass-border);">
-            <h3>ผู้สร้าง (Creators)</h3>
+            <div class="header-glow">
+                <h2>ยินดีต้อนรับสู่ <span class="gradient-text">ระบบฝากบอก</span></h2>
+                <p style="color: var(--text-sub); font-size: 0.9rem;">คู่มือการใช้งานและทีมผู้พัฒนาโปรเจกต์</p>
+            </div>
+
+            <div class="card-item" style="text-align: center;">
+                <img src="photo/howto.png" alt="วิธีใช้งาน" style="max-width: 100%; border-radius: 12px;" onerror="this.style.display='none'">
+                <div style="text-align: left; margin-top: 10px; font-size: 0.9rem; color: var(--text-sub);">
+                    <p>📌 <b>ขั้นตอนง่ายๆ ในการใช้งาน:</b></p>
+                    <ol>
+                        <li>ไปที่เมนู <b>"ฝากบอก"</b> แล้วเลือกว่าจะเปิดหรือปิดโปรไฟล์</li>
+                        <li>พิมพ์ข้อความของคุณ ใส่รูป/วิดีโอ หรือชื่อเพลงที่ต้องการ</li>
+                        <li>ใส่แท็ก IG คนที่อยากให้แท็ก</li>
+                        <li>กดส่งข้อความ และรอแอดมินอนุมัติลงเพจ!</li>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>ทีมผู้สร้าง (5 Members)</h3>
             <div class="member-grid">
-                <div><img src="photo/member1.png" alt="M1" onerror="this.src='https://via.placeholder.com/60'"><br><small>ชื่อ 1</small></div>
-                <div><img src="photo/member2.png" alt="M2" onerror="this.src='https://via.placeholder.com/60'"><br><small>ชื่อ 2</small></div>
-                <div><img src="photo/member3.png" alt="M3" onerror="this.src='https://via.placeholder.com/60'"><br><small>ชื่อ 3</small></div>
-                <div><img src="photo/member4.png" alt="M4" onerror="this.src='https://via.placeholder.com/60'"><br><small>ชื่อ 4</small></div>
-                <div><img src="photo/member5.png" alt="M5" onerror="this.src='https://via.placeholder.com/60'"><br><small>ชื่อ 5</small></div>
+                <div class="member-card">
+                    <img src="photo/member1.png" alt="M1" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=1'">
+                    <div style="font-size: 0.75rem; color: var(--text-sub);">Member 1</div>
+                </div>
+                <div class="member-card">
+                    <img src="photo/member2.png" alt="M2" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=2'">
+                    <div style="font-size: 0.75rem; color: var(--text-sub);">Member 2</div>
+                </div>
+                <div class="member-card">
+                    <img src="photo/member3.png" alt="M3" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=3'">
+                    <div style="font-size: 0.75rem; color: var(--text-sub);">Member 3</div>
+                </div>
+                <div class="member-card">
+                    <img src="photo/member4.png" alt="M4" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=4'">
+                    <div style="font-size: 0.75rem; color: var(--text-sub);">Member 4</div>
+                </div>
+                <div class="member-card">
+                    <img src="photo/member5.png" alt="M5" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=5'">
+                    <div style="font-size: 0.75rem; color: var(--text-sub);">Member 5</div>
+                </div>
             </div>
         </div>
 
-        <!-- หน้าฝากบอก (Steps) -->
+        <!-- Tab 2: หน้าฝากบอก (5 ขั้นตอน) -->
         <div id="tab-submit" class="tab-content hidden">
-            <h2>ฝากบอกความในใจ</h2>
+            <!-- Step Progress -->
+            <div class="step-progress">
+                <div class="step-dot active" id="dot-1">1</div>
+                <div class="step-dot" id="dot-2">2</div>
+                <div class="step-dot" id="dot-3">3</div>
+                <div class="step-dot" id="dot-4">4</div>
+                <div class="step-dot" id="dot-5">5</div>
+            </div>
+
+            <!-- Step 1: เปิด/ปิด โปรไฟล์ -->
             <div class="step-container" id="step-1">
-                <h3>1. ตั้งค่าโปรไฟล์</h3>
+                <h3>ขั้นตอนที่ 1: ตั้งค่าโปรไฟล์</h3>
+                <label style="font-size: 0.85rem; color: var(--text-sub); display: block; margin-bottom: 8px;">คุณต้องการเปิดเผยตัวตนหรือไม่?</label>
                 <select id="isAnonymous">
-                    <option value="true">ปิดโปรไฟล์ (ไม่ระบุตัวตน)</option>
-                    <option value="false">เปิดโปรไฟล์</option>
+                    <option value="true">🔒 ปิดโปรไฟล์ (ไม่ระบุตัวตน / แอบบอก)</option>
+                    <option value="false">👤 เปิดโปรไฟล์ (แสดงชื่อของคุณ)</option>
                 </select>
-                <button class="btn btn-primary" onclick="nextStep(2)">ถัดไป</button>
+                <button class="btn btn-primary btn-full" onclick="nextStep(2)">ถัดไป <i data-lucide="arrow-right"></i></button>
             </div>
 
+            <!-- Step 2: พิมพ์ฝากบอก -->
             <div class="step-container hidden" id="step-2">
-                <h3>2. ข้อความฝากบอก</h3>
-                <textarea id="msgContent" rows="4" placeholder="พิมพ์สิ่งที่คุณต้องการฝากบอก..."></textarea>
-                <button class="btn btn-primary" onclick="nextStep(3)">ถัดไป</button>
+                <h3>ขั้นตอนที่ 2: ข้อความฝากบอก</h3>
+                <textarea id="msgContent" rows="5" placeholder="พิมพ์ข้อความที่คุณต้องการฝากบอกลงที่นี่..."></textarea>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn" style="width: 40%;" onclick="nextStep(1)">ย้อนกลับ</button>
+                    <button class="btn btn-primary" style="width: 60%;" onclick="nextStep(3)">ถัดไป <i data-lucide="arrow-right"></i></button>
+                </div>
             </div>
 
+            <!-- Step 3: รูปภาพ / วิดีโอ -->
             <div class="step-container hidden" id="step-3">
-                <h3>3. รูปภาพ / วิดีโอ (เลือกได้)</h3>
-                <input type="file" id="mediaUpload" accept="image/*,video/*">
-                <button class="btn btn-primary" onclick="nextStep(4)">ถัดไป</button>
+                <h3>ขั้นตอนที่ 3: แนบรูปภาพหรือวิดีโอ</h3>
+                <p style="font-size: 0.85rem; color: var(--text-sub);">ใส่ลิงก์รูปภาพ/วิดีโอ (หากไม่มีสามารถข้ามได้)</p>
+                <input type="url" id="mediaUrl" placeholder="https://example.com/image.png">
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn" style="width: 40%;" onclick="nextStep(2)">ย้อนกลับ</button>
+                    <button class="btn btn-primary" style="width: 60%;" onclick="nextStep(4)">ถัดไป <i data-lucide="arrow-right"></i></button>
+                </div>
             </div>
 
+            <!-- Step 4: เลือกเพลง -->
             <div class="step-container hidden" id="step-4">
-                <h3>4. ใส่เพลง (Spotify)</h3>
-                <input type="text" id="songName" placeholder="ค้นหาชื่อเพลง (ถ้ามี)">
-                <button class="btn btn-primary" onclick="nextStep(5)">ถัดไป</button>
+                <h3>ขั้นตอนที่ 4: เพลงประกอบฝากบอก</h3>
+                <input type="text" id="songName" placeholder="พิมพ์ชื่อเพลง หรือ Artist - Song Name">
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn" style="width: 40%;" onclick="nextStep(3)">ย้อนกลับ</button>
+                    <button class="btn btn-primary" style="width: 60%;" onclick="nextStep(5)">ถัดไป <i data-lucide="arrow-right"></i></button>
+                </div>
             </div>
 
+            <!-- Step 5: แท็ก และ Hashtags -->
             <div class="step-container hidden" id="step-5">
-                <h3>5. แท็กเพิ่มเติม</h3>
-                <p><small>แฮชแท็กหลัก: #ฝากบอก #ฝากบอกนตอน. #autofakbokntun จะถูกเติมให้อัตโนมัติ</small></p>
-                <input type="text" id="tagTarget" placeholder="แท็ก IG หรือ ชื่อ (เช่น @drea.m0067)">
-                <button class="btn btn-primary" onclick="submitPost()">ส่งข้อความฝากบอก</button>
+                <h3>ขั้นตอนที่ 5: แท็กคนพิเศษ & แคปชั่น</h3>
+                <p style="font-size: 0.8rem; color: #ff7e67;">ระบบจะเติมแฮชแท็กให้อัตโนมัติ: #ฝากบอก #ฝากบอกนตอน. #autofakbokntun</p>
+                <input type="text" id="tagTarget" placeholder="พิมพ์ชื่อ IG ที่ต้องการแท็ก เช่น @drea.m0067">
+                
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="btn" style="width: 40%;" onclick="nextStep(4)">ย้อนกลับ</button>
+                    <button class="btn btn-primary" style="width: 60%;" onclick="submitPost()">ส่งข้อความฝากบอก ✨</button>
+                </div>
             </div>
         </div>
 
-        <!-- หน้าสถานะ -->
+        <!-- Tab 3: หน้าเช็คสถานะ -->
         <div id="tab-status" class="tab-content hidden">
-            <h2>สถานะการฝากบอกของคุณ</h2>
-            <div id="my-posts-list">
-                <!-- ข้อมูลตัวอย่าง -->
-                <div class="glass-panel" style="padding: 1rem; width: auto; margin-bottom: 10px;">
-                    <p><strong>ข้อความ:</strong> แอบชอบคนนั้นจัง...</p>
-                    <p>สถานะ: <span style="color: #f1c40f;">รอดำเนินการ</span></p>
-                </div>
+            <h2>ติดตามสถานะการฝากบอก</h2>
+            <div id="my-posts-list" style="margin-top: 1rem;">
+                <p style="color: var(--text-sub); text-align: center;">กำลังโหลดข้อมูล...</p>
             </div>
         </div>
 
-        <!-- หน้า Admin -->
+        <!-- Tab 4: หน้า Admin Panel -->
         <div id="tab-admin" class="tab-content hidden">
-            <h2>แผงควบคุม (Admin)</h2>
-            <div class="nav-menu">
-                <button class="btn" onclick="showAdminSection('admin-approve')">พิจารณาโพสต์</button>
-                <button class="btn" onclick="showAdminSection('admin-manage')">จัดการแอดมิน</button>
+            <h2>แผงควบคุมแอดมิน <span class="badge badge-rejected">ADMIN</span></h2>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+                <button class="btn btn-full active" onclick="switchAdminSub('admin-posts')">อนุมัติโพสต์</button>
+                <button class="btn btn-full" onclick="switchAdminSub('admin-add')">เพิ่มแอดมิน</button>
             </div>
 
-            <div id="admin-approve">
-                <!-- ระบบดึงข้อมูลจาก Firebase มาแสดงตรงนี้ -->
-                <p>โพสต์รอการอนุมัติจะแสดงที่นี่...</p>
-                <!-- ตัวอย่าง -->
-                <div class="glass-panel" style="padding: 1rem; width: auto; border-color: #ff4757;">
-                    <p><strong>ผู้ฝาก:</strong> ไม่ระบุตัวตน</p>
-                    <p><strong>ข้อความ:</strong> เทสระบบจ้า</p>
-                    <button class="btn" style="background: #2ed573;">อนุมัติ (โพสต์ลงเพจ)</button>
-                    <button class="btn" style="background: #ff4757;">ไม่อนุมัติ</button>
-                    <input type="text" placeholder="เหตุผลที่ไม่อนุมัติ (ถ้ามี)">
+            <!-- พิจารณาโพสต์ -->
+            <div id="admin-posts">
+                <div id="all-posts-list">
+                    <p style="color: var(--text-sub); text-align: center;">กำลังดึงรายการโพสต์ทั้งหมด...</p>
                 </div>
             </div>
 
-            <div id="admin-manage" class="hidden">
-                <h3>เพิ่มสิทธิ์ Admin</h3>
-                <input type="email" id="newAdminEmail" placeholder="ใส่อีเมลแอดมินใหม่">
-                <button class="btn btn-primary">เพิ่มแอดมิน</button>
+            <!-- เพิ่มแอดมิน -->
+            <div id="admin-add" class="hidden">
+                <h3>เพิ่มสิทธิ์ Admin ด้วยอีเมล</h3>
+                <input type="email" id="newAdminEmail" placeholder="ใส่อีเมลแอดมินใหม่ เช่น admin2@gmail.com">
+                <button class="btn btn-primary btn-full" onclick="addAdminRole()">เพิ่มสิทธิ์แอดมิน</button>
             </div>
         </div>
+
     </div>
 
-    <!-- Firebase SDK (Modular) -->
+    <!-- Firebase SDK Modular -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+        // ตั้งค่า Firebase จากข้อมูลของคุณ
         const firebaseConfig = {
-            apiKey: "AIzaSyD2zMKpTSfxG_ArBM5SAw5gKJoFhlbfZxg",
-            authDomain: "fakbokntun-532f2.firebaseapp.com",
-            databaseURL: "https://fakbokntun-532f2-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "fakbokntun-532f2",
-            storageBucket: "fakbokntun-532f2.firebasestorage.app",
-            messagingSenderId: "701936376545",
-            appId: "1:701936376545:web:1ca5f255771f4e8d93f5a0",
-            measurementId: "G-H99SG0G03N"
+            apiKey: "AIzaSyDVeBYu0hcsU4EZ2FiGYowJjHasAHDuVMA",
+            authDomain: "e-certificates-2ea66.firebaseapp.com",
+            databaseURL: "https://e-certificates-2ea66-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "e-certificates-2ea66",
+            storageBucket: "e-certificates-2ea66.firebasestorage.app",
+            messagingSenderId: "352154979396",
+            appId: "1:352154979396:web:700280ec6159bde1888011",
+            measurementId: "G-R6E5BKYN6Y"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -251,68 +448,239 @@
 
         const superAdminEmail = "aceaa372@gmail.com";
         let currentUser = null;
+        let isAdminUser = false;
 
-        // สังเกตสถานะการล็อกอิน
+        // บล็อกคลิกขวา และ ปุ่มตรวจสอบโค้ด (F12, Ctrl+Shift+I)
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F12' || 
+               (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
+               (e.ctrlKey && e.key === 'u')) {
+                e.preventDefault();
+            }
+        });
+
+        // ตรวจสอบสถานะการล็อกอิน
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
                 document.getElementById('view-login').classList.add('hidden');
                 document.getElementById('view-app').classList.remove('hidden');
-                
-                // ตรวจสอบสิทธิ์ Admin (ตัวอย่างเช็คแค่ Super Admin)
-                // ของจริงควรเช็คใน Database ว่าอีเมลนี้อยู่ใน list แอดมินไหม
-                if (user.email === superAdminEmail) {
-                    document.getElementById('btn-admin').classList.remove('hidden');
-                }
+
+                // ตรวจสอบว่าเป็น Admin หรือไม่
+                checkAdminStatus(user.email);
+                loadMyPosts();
             } else {
+                currentUser = null;
                 document.getElementById('view-login').classList.remove('hidden');
                 document.getElementById('view-app').classList.add('hidden');
             }
         });
 
-        window.loginWithGoogle = () => {
-            signInWithPopup(auth, provider).catch((error) => {
-                alert("เกิดข้อผิดพลาด: " + error.message);
+        // เช็คว่าผู้ใช้เป็นแอดมินหรือเปล่า
+        function checkAdminStatus(email) {
+            const adminRef = ref(db, 'admins');
+            onValue(adminRef, (snapshot) => {
+                const admins = snapshot.val() || {};
+                const adminList = Object.values(admins);
+                
+                if (email === superAdminEmail || adminList.includes(email)) {
+                    isAdminUser = true;
+                    document.getElementById('btn-admin').classList.remove('hidden');
+                    loadAllPostsForAdmin();
+                } else {
+                    isAdminUser = false;
+                    document.getElementById('btn-admin').classList.add('hidden');
+                }
             });
+        }
+
+        // ล็อกอิน Google
+        window.loginWithGoogle = () => {
+            signInWithPopup(auth, provider).catch(err => alert("เกิดข้อผิดพลาดในการเข้าสู่ระบบ: " + err.message));
         };
 
+        // ออกจากระบบ
         window.logout = () => {
             signOut(auth);
+        };
+
+        // ส่งข้อความฝากบอกลง Realtime Database
+        window.submitPost = () => {
+            const isAnon = document.getElementById('isAnonymous').value === 'true';
+            const msg = document.getElementById('msgContent').value.trim();
+            const media = document.getElementById('mediaUrl').value.trim();
+            const song = document.getElementById('songName').value.trim();
+            const tag = document.getElementById('tagTarget').value.trim();
+
+            if (!msg) {
+                alert("กรุณากรอกข้อความฝากบอกด้วยครับ");
+                return;
+            }
+
+            const postData = {
+                uid: currentUser.uid,
+                authorName: isAnon ? "ไม่ระบุตัวตน" : (currentUser.displayName || currentUser.email),
+                isAnonymous: isAnon,
+                message: msg,
+                mediaUrl: media,
+                song: song,
+                tagTarget: tag,
+                hashtags: "#ฝากบอก #ฝากบอกนตอน. #autofakbokntun",
+                status: "pending", // pending, approved, rejected
+                rejectReason: "",
+                timestamp: Date.now()
+            };
+
+            const postsRef = ref(db, 'posts');
+            const newPostRef = push(postsRef);
+            set(newPostRef, postData).then(() => {
+                alert("ส่งข้อมูลฝากบอกเรียบร้อยแล้ว! โปรดรอแอดมินอนุมัติ");
+                // Reset form
+                document.getElementById('msgContent').value = '';
+                document.getElementById('mediaUrl').value = '';
+                document.getElementById('songName').value = '';
+                document.getElementById('tagTarget').value = '';
+                window.nextStep(1);
+                window.switchTab('tab-status');
+            }).catch(err => alert("เกิดข้อผิดพลาด: " + err.message));
+        };
+
+        // โหลดข้อมูลสถานะของผู้ใช้
+        function loadMyPosts() {
+            const postsRef = ref(db, 'posts');
+            onValue(postsRef, (snapshot) => {
+                const container = document.getElementById('my-posts-list');
+                container.innerHTML = '';
+                const data = snapshot.val();
+
+                if (!data) {
+                    container.innerHTML = '<p style="color: var(--text-sub); text-align: center;">ยังไม่มีประวัติการฝากบอก</p>';
+                    return;
+                }
+
+                let myPosts = Object.keys(data)
+                    .map(key => ({ id: key, ...data[key] }))
+                    .filter(post => post.uid === currentUser.uid);
+
+                if (myPosts.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-sub); text-align: center;">ยังไม่มีประวัติการฝากบอก</p>';
+                    return;
+                }
+
+                myPosts.reverse().forEach(post => {
+                    let statusBadge = '';
+                    if (post.status === 'pending') statusBadge = '<span class="badge badge-pending">รอดำเนินการ</span>';
+                    else if (post.status === 'approved') statusBadge = '<span class="badge badge-approved">ลงแล้ว</span>';
+                    else if (post.status === 'rejected') statusBadge = '<span class="badge badge-rejected">ไม่ผ่าน</span>';
+
+                    container.innerHTML += `
+                        <div class="card-item">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <small style="color: var(--text-sub);">${new Date(post.timestamp).toLocaleString('th-TH')}</small>
+                                ${statusBadge}
+                            </div>
+                            <p style="margin: 5px 0;"><strong>ข้อความ:</strong> ${post.message}</p>
+                            ${post.song ? `<p style="margin: 2px 0; font-size:0.85rem; color: #ff8e53;">🎵 เพลง: ${post.song}</p>` : ''}
+                            ${post.tagTarget ? `<p style="margin: 2px 0; font-size:0.85rem; color: #ff7e67;">🏷️ แท็ก: ${post.tagTarget}</p>` : ''}
+                            ${post.status === 'rejected' ? `<div style="margin-top:8px; font-size:0.85rem; color:#ff4757; background:rgba(255,71,87,0.1); padding:8px; border-radius:8px;">❌ เหตุผลที่ไม่ผ่าน: ${post.rejectReason || 'ไม่ระบุเหตุผล'}</div>` : ''}
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        // โหลดข้อมูลทั้งหมดสำหรับแอดมิน
+        function loadAllPostsForAdmin() {
+            const postsRef = ref(db, 'posts');
+            onValue(postsRef, (snapshot) => {
+                const container = document.getElementById('all-posts-list');
+                container.innerHTML = '';
+                const data = snapshot.val();
+
+                if (!data) {
+                    container.innerHTML = '<p style="color: var(--text-sub); text-align: center;">ไม่มีรายการโพสต์ในระบบ</p>';
+                    return;
+                }
+
+                const allPosts = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
+
+                allPosts.forEach(post => {
+                    container.innerHTML += `
+                        <div class="card-item" style="border-left: 4px solid ${post.status === 'approved' ? '#2ed573' : post.status === 'rejected' ? '#ff4757' : '#f1c40f'}">
+                            <p style="margin:0 0 5px 0;"><b>ผู้ฝาก:</b> ${post.authorName} (${post.isAnonymous ? 'ปิดโปรไฟล์' : 'เปิดโปรไฟล์'})</p>
+                            <p style="margin:0 0 5px 0;"><b>ข้อความ:</b> ${post.message}</p>
+                            <p style="margin:0 0 5px 0; font-size:0.85rem; color: var(--text-sub);"><b>แคปชั่นแท็ก:</b> ${post.hashtags} ${post.tagTarget}</p>
+                            
+                            <div style="margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap;">
+                                <button class="btn" style="background:#2ed573; color:white; padding:6px 12px; font-size:0.8rem;" onclick="adminApprove('${post.id}')">อนุมัติลงเพจ</button>
+                                <button class="btn" style="background:#ff4757; color:white; padding:6px 12px; font-size:0.8rem;" onclick="adminReject('${post.id}')">ไม่อนุมัติ</button>
+                                <button class="btn" style="background:#747d8c; color:white; padding:6px 12px; font-size:0.8rem;" onclick="adminDelete('${post.id}')">ลบโพสต์</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        // Action ของ Admin
+        window.adminApprove = (postId) => {
+            update(ref(db, `posts/${postId}`), { status: 'approved' });
+        };
+
+        window.adminReject = (postId) => {
+            const reason = prompt("ระบุเหตุผลที่ไม่ผ่านการอนุมัติ:");
+            if (reason !== null) {
+                update(ref(db, `posts/${postId}`), { status: 'rejected', rejectReason: reason });
+            }
+        };
+
+        window.adminDelete = (postId) => {
+            if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบโพสต์นี้?")) {
+                remove(ref(db, `posts/${postId}`));
+            }
+        };
+
+        // เพิ่มแอดมินใหม่
+        window.addAdminRole = () => {
+            const email = document.getElementById('newAdminEmail').value.trim();
+            if (!email) return alert("กรุณากรอกอีเมล");
+            push(ref(db, 'admins'), email).then(() => {
+                alert(`เพิ่มสิทธิ์แอดมินให้ ${email} เรียบร้อยแล้ว`);
+                document.getElementById('newAdminEmail').value = '';
+            });
         };
     </script>
 
     <script>
-        // --- ระบบป้องกันการคลิกขวาและดูโค้ด (ตามคำขอ) ---
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
-                e.preventDefault();
-            }
-        });
+        // Lucide Icons Render
+        lucide.createIcons();
 
-        // --- ระบบสลับหน้าต่าง (Tabs) ---
+        // สลับ Tab
         function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
             document.getElementById(tabId).classList.remove('hidden');
+            const navBtn = document.getElementById('nav-' + tabId.replace('tab-', ''));
+            if(navBtn) navBtn.classList.add('active');
         }
 
-        function showAdminSection(sectionId) {
-            document.getElementById('admin-approve').classList.add('hidden');
-            document.getElementById('admin-manage').classList.add('hidden');
-            document.getElementById(sectionId).classList.remove('hidden');
-        }
-
-        // --- ระบบ Step ฝากบอก ---
-        function nextStep(step) {
+        // สลับ Step ในหน้าฝากบอก
+        function nextStep(stepNum) {
             document.querySelectorAll('.step-container').forEach(el => el.classList.add('hidden'));
-            document.getElementById('step-' + step).classList.remove('hidden');
+            document.querySelectorAll('.step-dot').forEach(el => el.classList.remove('active'));
+
+            document.getElementById('step-' + stepNum).classList.remove('hidden');
+            for(let i = 1; i <= stepNum; i++) {
+                document.getElementById('dot-' + i).classList.add('active');
+            }
         }
 
-        function submitPost() {
-            alert('บันทึกข้อมูลเรียบร้อย! รอแอดมินอนุมัติ (ระบบเชื่อมต่อ Database จริงจะต้องเขียนโค้ดบันทึกลง Firebase ตรงนี้)');
-            // รีเซ็ตฟอร์มกลับไปหน้าแรก
-            nextStep(1);
-            switchTab('tab-status');
+        function switchAdminSub(subId) {
+            document.getElementById('admin-posts').classList.add('hidden');
+            document.getElementById('admin-add').classList.add('hidden');
+            document.getElementById(subId).classList.remove('hidden');
         }
     </script>
 </body>
