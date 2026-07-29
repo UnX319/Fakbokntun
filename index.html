@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบฝากบอกอัตโนมัติ - Fakbokntun (Firebase)</title>
+    <title>ระบบฝากบอกอัตโนมัติ - Fakbokntun (ntunspace)</title>
     <!-- Prompt Font & Lucide Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -257,7 +257,7 @@
         <div class="header-glow">
             <i data-lucide="message-square-heart" style="width: 48px; height: 48px; color: #ff7e67;"></i>
             <h1 style="margin: 10px 0 5px 0;">ระบบ<span class="gradient-text">ฝากบอก</span></h1>
-            <p style="color: var(--text-sub); margin: 0; font-size: 0.9rem;">ส่งต่อความในใจผ่านระบบฝากบอกอัตโนมัติ (Firebase)</p>
+            <p style="color: var(--text-sub); margin: 0; font-size: 0.9rem;">ส่งต่อความในใจผ่านระบบฝากบอกอัตโนมัติ (ntunspace)</p>
         </div>
         <button class="btn btn-primary btn-full" onclick="loginWithGoogle()">
             <i data-lucide="log-in"></i> เข้าสู่ระบบด้วย Google
@@ -409,22 +409,22 @@
         </div>
     </div>
 
-    <!-- Firebase SDK (Modular) -->
+    <!-- Firebase SDK (Modular v10) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // Firebase Configuration
+        // Firebase Configuration (Project: ntunspace)
         const firebaseConfig = {
-            apiKey: "AIzaSyDVeBYu0hcsU4EZ2FiGYowJjHasAHDuVMA",
-            authDomain: "e-certificates-2ea66.firebaseapp.com",
-            databaseURL: "https://e-certificates-2ea66-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "e-certificates-2ea66",
-            storageBucket: "e-certificates-2ea66.firebasestorage.app",
-            messagingSenderId: "352154979396",
-            appId: "1:352154979396:web:700280ec6159bde1888011",
-            measurementId: "G-R6E5BKYN6Y"
+            apiKey: "AIzaSyAlaTyhtXf-d6qDSD5AeWR33Hg3VCn55o8",
+            authDomain: "ntunspace.firebaseapp.com",
+            databaseURL: "https://ntunspace-default-rtdb.firebaseio.com",
+            projectId: "ntunspace",
+            storageBucket: "ntunspace.firebasestorage.app",
+            messagingSenderId: "952526844615",
+            appId: "1:952526844615:web:d1f78ba8e3b44c24ee84e2",
+            measurementId: "G-33DZ6EX79H"
         };
 
         const app = initializeApp(firebaseConfig);
